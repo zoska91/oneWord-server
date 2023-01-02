@@ -4,12 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node ./bin/www.js",
+    "start": "node ./index.js",
     "format:check": "prettier --check .",
     "format:write": "prettier --write .",
     "lint:check": "eslint .",
     "lint:fix": "eslint --fix .",
-    "build": "node ./bin/www.js"
+    "build": "node ./index.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.0",

@@ -1,13 +1,15 @@
 import express from 'express'
 import { SettingsModel } from '../models/settings.js'
+import jwt from 'jsonwebtoken'
+import config from '../config.js'
 
 const router = express.Router()
 
 router.get('/user-settings', async (req, res) => {
   try {
-    if (!req.user) res.status(401).json({ message: 'no logged user' })
-
-    const userId = req.user._id.valueOf()
+    const token = req.headers.authorization.split(' ')[1]
+    if (!token) return res.status(401).json({ message: 'no logged user' })
+    const { id: userId } = jwt.verify(token, config.secret)
     const settings = await SettingsModel.find({ userId })
 
     res.json(settings)
@@ -19,7 +21,10 @@ router.get('/user-settings', async (req, res) => {
 
 router.put('/user-settings', async (req, res) => {
   try {
-    const userId = req.user._id.valueOf()
+    const token = req.headers.authorization.split(' ')[1]
+    if (!token) return res.status(401).json({ message: 'no logged user' })
+
+    const { id: userId } = jwt.verify(token, config.secret)
 
     await SettingsModel.findOneAndUpdate({ userId }, req.body)
     res.json({ message: 'Update success' })

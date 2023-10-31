@@ -1,26 +1,10 @@
-/**
- * @openapi
- * /login:
- *   post:
- *     description: Login
- *     responses:
- *       200:
- *         description: Returns a mysterious string.
- * /users:
- *  get:
- *    description: get all users
- *    response:
- *      200:
- *        description: great
- *
- */
-
 import express from 'express'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
 import { UserModel } from '../models/user.js'
 import config from '../config.js'
+import { SettingsModel } from '../models/settings.js'
 
 const router = express.Router()
 
@@ -74,10 +58,8 @@ router.post('/login', async (req, res) => {
 })
 
 router.post('/register', async (req, res) => {
-  console.log(req.body)
   try {
     const { username, password, name } = req.body
-    console.log(username, password)
     const findUser = await UserModel.findOne({ username })
 
     if (findUser)
@@ -102,6 +84,11 @@ router.post('/register', async (req, res) => {
     const userData = await newUser.save()
     if (!userData)
       return res.status(400).json('Something wrong with saving user')
+
+    const defaultSettings = new SettingsModel({
+      userId: userData._id,
+    })
+    defaultSettings.save()
 
     res.json({ message: 'success' })
   } catch (e) {

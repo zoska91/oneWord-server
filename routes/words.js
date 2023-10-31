@@ -1,5 +1,7 @@
 import express from 'express'
 import mongoose from 'mongoose'
+import jwt from 'jsonwebtoken'
+
 import { SettingsModel } from '../models/settings.js'
 import { WordModel } from '../models/word.js'
 import {
@@ -7,14 +9,16 @@ import {
   getRandomWord,
   getShuffleWords,
 } from '../utils/words.js'
+import config from '../config.js'
 
 const router = express.Router()
 
 router.get('/all', async (req, res) => {
   try {
-    if (!req.user) res.status(401).json({ message: 'no logged user' })
+    const token = req.headers.authorization.split(' ')[1]
+    if (!token) return res.status(401).json({ message: 'no logged user' })
 
-    const userId = req.user._id.valueOf()
+    const { id: userId } = jwt.verify(token, config.secret)
     const words = await WordModel.find({ userId })
 
     res.json({ words })
@@ -26,9 +30,12 @@ router.get('/all', async (req, res) => {
 
 router.post('/add-one', async (req, res) => {
   try {
-    if (!req.user) res.status(401).json({ message: 'no logged user' })
+    const token = req.headers.authorization.split(' ')[1]
+    if (!token) return res.status(401).json({ message: 'no logged user' })
 
-    const newWord = new WordModel({ userId: req.user._id, ...req.body })
+    const { id: userId } = jwt.verify(token, config.secret)
+
+    const newWord = new WordModel({ userId, ...req.body })
 
     newWord.save()
 
@@ -58,8 +65,10 @@ router.put('/update-one/:id', async (req, res) => {
 
 router.get('/today-word', async (req, res) => {
   try {
-    if (!req.user) res.status(401).json({ message: 'no logged user' })
-    const userId = req.user._id.valueOf()
+    const token = req.headers.authorization.split(' ')[1]
+    if (!token) return res.status(401).json({ message: 'no logged user' })
+
+    const { id: userId } = jwt.verify(token, config.secret)
     const { selectLanguage, breakDay, isBreak } = await SettingsModel.findOne({
       userId,
     })

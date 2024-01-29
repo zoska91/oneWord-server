@@ -10,7 +10,7 @@ router.get('/user-settings', async (req, res) => {
     const token = req.headers.authorization.split(' ')[1]
     if (!token) return res.status(401).json({ message: 'no logged user' })
     const { id: userId } = jwt.verify(token, config.secret)
-    const settings = await SettingsModel.find({ userId })
+    const settings = await SettingsModel.findOne({ userId })
 
     res.json(settings)
   } catch (e) {

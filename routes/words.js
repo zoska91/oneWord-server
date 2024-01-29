@@ -66,8 +66,7 @@ router.put('/update-one/:id', async (req, res) => {
 router.delete('/delete-one/:id', async (req, res) => {
   try {
     const id = mongoose.Types.ObjectId(req.params.id)
-
-    const data = await WordModel.findOneAndDelete(
+    const data = await WordModel.findByIdAndDelete(
       { _id: id },
     )
 

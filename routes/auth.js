@@ -12,7 +12,7 @@ router.get('/user', async (req, res) => {
   if (!req.headers?.authorization)
     return res.status(401).json({ message: 'no logged user' })
 
-  const token = await req.headers.authorization.split(' ')[1]
+  const token = req.headers.authorization.split(' ')[1]
   if (token === 'undefined')
     return res.status(401).json({ message: 'no logged user' })
 

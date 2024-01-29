@@ -26,4 +26,4 @@ const SettingsSchema = new mongoose.Schema({
 })
 
 export const SettingsModel = mongoose.model('Settings', SettingsSchema)
-export const NotificationModel = mongoose.model('Notification', SettingsSchema)
+export const NotificationModel = mongoose.model('Notification', NotificationSchema)

@@ -63,6 +63,21 @@ router.put('/update-one/:id', async (req, res) => {
   }
 })
 
+router.delete('/delete-one/:id', async (req, res) => {
+  try {
+    const id = mongoose.Types.ObjectId(req.params.id)
+
+    const data = await WordModel.findOneAndDelete(
+      { _id: id },
+    )
+
+    res.json(data)
+  } catch (e) {
+    console.log(e)
+    res.status(500).json({ message: 'something went wrong' })
+  }
+})
+
 router.get('/today-word', async (req, res) => {
   try {
     const token = req.headers.authorization.split(' ')[1]

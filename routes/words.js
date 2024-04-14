@@ -52,7 +52,8 @@ router.post('/add-csv', async (req, res) => {
     const token = req.headers.authorization.split(' ')[1]
     if (!token) return res.status(401).json({ message: 'no logged user' })
     const { id: userId } = jwt.verify(token, config.secret)
-
+    console.log(1, req.files)
+    console.log(2, req.file)
     const file = req.files.file
 
     if (!req.files) {

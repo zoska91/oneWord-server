@@ -9,6 +9,7 @@ import swaggerJSDoc from 'swagger-jsdoc'
 import cors from 'cors'
 import session from 'express-session'
 import MongoStore from 'connect-mongo'
+import fileupload from 'express-fileupload'
 
 import config from './config.js'
 import { swaggerConfig } from './swagger.config.js'
@@ -41,6 +42,7 @@ app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs))
 app.use(cors())
+app.use(fileupload())
 app.use(
   session({
     secret: 'top top',

@@ -1,6 +1,7 @@
-import express from 'express'
+import express, { json } from 'express'
 import mongoose from 'mongoose'
 import jwt from 'jsonwebtoken'
+import csvtojson from 'csvtojson'
 
 import { SettingsModel } from '../models/settings.js'
 import { WordModel } from '../models/word.js'
@@ -46,6 +47,44 @@ router.post('/add-one', async (req, res) => {
   }
 })
 
+router.post('/add-csv', async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(' ')[1]
+    if (!token) return res.status(401).json({ message: 'no logged user' })
+    const { id: userId } = jwt.verify(token, config.secret)
+
+    const file = req.files.file
+
+    if (!req.files) {
+      res.status(400).send('File was not found')
+      return
+    }
+
+    csvtojson({ noheader: false, output: 'json' })
+      .fromString(file.data.toString('utf8'))
+      .then((jsonObj) => {
+        jsonObj.forEach((word) => {
+          if (!word.basicWord)
+            return res.status(400).json({ message: 'wrong basic word key' })
+          if (!word.transWord)
+            return res.status(400).json({ message: 'wrong transform word key' })
+
+          const newWord = new WordModel({ userId, ...word })
+
+          newWord.save()
+        })
+
+        res.json({ message: 'Success' })
+      })
+      .catch((err) => {
+        res.status(500).send(err.message)
+      })
+  } catch (e) {
+    console.log(e)
+    res.status(500).json({ message: 'something went wrong' })
+  }
+})
+
 router.put('/update-one/:id', async (req, res) => {
   try {
     const id = mongoose.Types.ObjectId(req.params.id)
@@ -66,9 +105,7 @@ router.put('/update-one/:id', async (req, res) => {
 router.delete('/delete-one/:id', async (req, res) => {
   try {
     const id = mongoose.Types.ObjectId(req.params.id)
-    const data = await WordModel.findByIdAndDelete(
-      { _id: id },
-    )
+    const data = await WordModel.findByIdAndDelete({ _id: id })
 
     res.json(data)
   } catch (e) {

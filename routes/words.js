@@ -17,14 +17,19 @@ const router = express.Router()
 router.get('/all', async (req, res) => {
   try {
     const token = req.headers.authorization.split(' ')[1]
-    if (!token) return res.status(401).json({ message: 'no logged user' })
+    if (!token) {
+      saveLog('warn', 'GET', 'words/all', 'no token', req.headers.authorization)
+      return res.status(401).json({ message: 'no logged user' })
+    }
 
     const { id: userId } = jwt.verify(token, config.secret)
     const words = await WordModel.find({ userId })
 
+    saveLog('info', 'GET', 'words/all', 'get word success', { userId })
     res.json({ words })
   } catch (e) {
     console.log(e)
+    saveLog('error', 'GET', 'words/all', 'system error', { error: e })
     res.status(500).json({ message: 'something went wrong' })
   }
 })
@@ -32,17 +37,29 @@ router.get('/all', async (req, res) => {
 router.post('/add-one', async (req, res) => {
   try {
     const token = req.headers.authorization.split(' ')[1]
-    if (!token) return res.status(401).json({ message: 'no logged user' })
+    if (!token) {
+      saveLog(
+        'warn',
+        'POST',
+        'words/add-one',
+        'no token',
+        req.headers.authorization
+      )
+      return res.status(401).json({ message: 'no logged user' })
+    }
 
     const { id: userId } = jwt.verify(token, config.secret)
 
     const newWord = new WordModel({ userId, ...req.body })
-
     newWord.save()
-
+    saveLog('info', 'POST', 'words/add-one', 'add success', {
+      userId,
+      wordId: newWord._id,
+    })
     res.json({ message: 'Success' })
   } catch (e) {
     console.log(e)
+    saveLog('info', 'POST', 'words/add-one', 'system error', { error: e })
     res.status(500).json({ message: 'something went wrong' })
   }
 })
@@ -50,13 +67,21 @@ router.post('/add-one', async (req, res) => {
 router.post('/add-csv', async (req, res) => {
   try {
     const token = req.headers.authorization.split(' ')[1]
-    if (!token) return res.status(401).json({ message: 'no logged user' })
+    if (!token) {
+      saveLog(
+        'warn',
+        'POST',
+        'words/add-csv',
+        'no token',
+        req.headers.authorization
+      )
+      return res.status(401).json({ message: 'no logged user' })
+    }
     const { id: userId } = jwt.verify(token, config.secret)
-    console.log(1, req.files)
-    console.log(2, req.file)
-    const file = req.files.file
+    const file = req.files?.file
 
     if (!req.files) {
+      saveLog('warn', 'POST', 'words/add-csv', 'no file', { files: req.files })
       res.status(400).send('File was not found')
       return
     }
@@ -78,10 +103,17 @@ router.post('/add-csv', async (req, res) => {
         res.json({ message: 'Success' })
       })
       .catch((err) => {
+        saveLog('error', 'POST', 'words/add-csv', 'system error [csvToJson]', {
+          error: err,
+        })
+
         res.status(500).send(err.message)
       })
   } catch (e) {
     console.log(e)
+    saveLog('error', 'POST', 'words/add-csv', 'system error', {
+      error: e,
+    })
     res.status(500).json({ message: 'something went wrong' })
   }
 })
@@ -95,10 +127,16 @@ router.put('/update-one/:id', async (req, res) => {
       { updatedDate: new Date(), ...req.body },
       { new: true }
     )
+    saveLog('info', 'PUT', 'words/update-one', 'update success', { wordId: id })
 
     res.json(data)
   } catch (e) {
     console.log(e)
+    saveLog('error', 'PUT', 'words/update-one', 'system error', {
+      error: e,
+      wordId: id,
+    })
+
     res.status(500).json({ message: 'something went wrong' })
   }
 })
@@ -108,9 +146,17 @@ router.delete('/delete-one/:id', async (req, res) => {
     const id = mongoose.Types.ObjectId(req.params.id)
     const data = await WordModel.findByIdAndDelete({ _id: id })
 
+    saveLog('error', 'DELETE', 'words/delete-one', 'update success', {
+      wordId: id,
+    })
     res.json(data)
   } catch (e) {
     console.log(e)
+    saveLog('error', 'DELETE', 'words/delete-one', 'system error', {
+      error: e,
+      wordId: id,
+    })
+
     res.status(500).json({ message: 'something went wrong' })
   }
 })
@@ -118,7 +164,16 @@ router.delete('/delete-one/:id', async (req, res) => {
 router.get('/today-word', async (req, res) => {
   try {
     const token = req.headers.authorization.split(' ')[1]
-    if (!token) return res.status(401).json({ message: 'no logged user' })
+    if (!token) {
+      saveLog(
+        'warn',
+        'GET',
+        'today-word',
+        'no token',
+        req.headers.authorization
+      )
+      return res.status(401).json({ message: 'no logged user' })
+    }
 
     const { id: userId } = jwt.verify(token, config.secret)
     const { selectLanguage, breakDay, isBreak } = await SettingsModel.findOne({
@@ -140,6 +195,7 @@ router.get('/today-word', async (req, res) => {
     res.json({ ...resp, shuffleWords })
   } catch (e) {
     console.log(e)
+    saveLog('warn', 'GET', 'today-word', 'system error', { error: e })
     res.status(500).json({ message: 'something went wrong' })
   }
 })

@@ -1,37 +1,43 @@
-import winston from 'winston'
-const logger = winston.createLogger({
+import path from 'path'
+import { createLogger, transports, format } from 'winston'
+
+const logger = createLogger({
   level: 'info',
-  format: winston.format.json(),
+  format: format.json(),
   defaultMeta: { service: 'user-service' },
   transports: [
-    new winston.transports.File({
-      filename:
-        new Date().toLocaleDateString().replace(/\//g, '-') + '-combined.log',
+    new transports.File({
+      filename: path.join(
+        'logs',
+        new Date().toLocaleDateString().replace(/\//g, '-') + '-combined.log'
+      ),
       format: format.combine(format.timestamp(), format.json()),
       rotation: {
         type: 'time',
-        period: '1w',
+        period: '1d',
       },
     }),
-    new winston.transports.File({ filename: 'combined.log' }),
+    new transports.Console(),
   ],
 })
 
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(
-    new winston.transports.Console({
-      format: winston.format.simple(),
-    })
-  )
-}
+// if (process.env.NODE_ENV !== 'production') {
+//   logger.add(
+//     new transports.Console({
+//       format: format.simple(),
+//     })
+//   )
+// }
 
 export const saveLog = (type, httpType, endpoint, message, data) => {
+  console.log(type, httpType, endpoint, message, data)
   const meta = {
     endpoint,
     httpType,
     message,
     data,
   }
+  console.log(type, httpType, endpoint, message, data)
 
   switch (type) {
     case 'info':

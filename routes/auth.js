@@ -10,6 +10,8 @@ import { saveLog } from '../logger.js'
 const router = express.Router()
 
 router.get('/user', async (req, res) => {
+  saveLog('info', 'GET', 'auth/user', 'test', { test: 'test' })
+
   if (!req.headers?.authorization) {
     return res.status(401).json({ message: 'no logged user' })
   }
@@ -22,20 +24,22 @@ router.get('/user', async (req, res) => {
   const { username, id, name } = jwt.verify(token, 'abfewvsdvarebr')
 
   if (username && id) {
-    saveLog('info', 'GET', 'auth/user', { userId: id })
+    saveLog('info', 'GET', 'auth/user', 'user logged', { userId: id })
     res.json({ username, id, name })
   } else {
-    res.status(401).json({ message: 'no logged user' })
+    saveLog('error', 'GET', 'auth/user', 'no logged user', { userId: id })
+    res.status(404).json({ message: 'no logged user' })
   }
 })
 
 router.post('/login', async (req, res) => {
+  console.log(11111)
   const { username, password } = req.body
 
   try {
     const data = await UserModel.findOne({ username })
     if (!data) {
-      saveLog('warn', 'POST', 'auth/login: no username', { username })
+      saveLog('warn', 'POST', 'auth/login', 'no username', { username })
       return res.status(404).send({ message: 'Email not found' })
     }
 

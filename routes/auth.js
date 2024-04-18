@@ -10,8 +10,6 @@ import { saveLog } from '../logger.js'
 const router = express.Router()
 
 router.get('/user', async (req, res) => {
-  saveLog('info', 'GET', 'auth/user', 'test', { test: 'test' })
-
   if (!req.headers?.authorization) {
     return res.status(401).json({ message: 'no logged user' })
   }
@@ -33,7 +31,6 @@ router.get('/user', async (req, res) => {
 })
 
 router.post('/login', async (req, res) => {
-  console.log(11111)
   const { username, password } = req.body
 
   try {

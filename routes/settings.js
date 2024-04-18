@@ -2,6 +2,7 @@ import express from 'express'
 import { SettingsModel } from '../models/settings.js'
 import jwt from 'jsonwebtoken'
 import config from '../config.js'
+import { saveLog } from '../logger.js'
 
 const router = express.Router()
 

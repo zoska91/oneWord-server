@@ -11,6 +11,7 @@ import {
   getShuffleWords,
 } from '../utils/words.js'
 import config from '../config.js'
+import { saveLog } from '../logger.js'
 
 const router = express.Router()
 

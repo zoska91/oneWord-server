@@ -6,17 +6,17 @@ const logger = createLogger({
   format: format.json(),
   defaultMeta: { service: 'user-service' },
   transports: [
-    new transports.File({
-      filename: path.join(
-        'logs',
-        new Date().toLocaleDateString().replace(/\//g, '-') + '-combined.log'
-      ),
-      format: format.combine(format.timestamp(), format.json()),
-      rotation: {
-        type: 'time',
-        period: '1d',
-      },
-    }),
+    // new transports.File({
+    //   filename: path.join(
+    //     'logs',
+    //     new Date().toLocaleDateString().replace(/\//g, '-') + '-combined.log'
+    //   ),
+    //   format: format.combine(format.timestamp(), format.json()),
+    //   rotation: {
+    //     type: 'time',
+    //     period: '1d',
+    //   },
+    // }),
     new transports.Console(),
   ],
 })

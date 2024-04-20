@@ -1,0 +1,46 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Deploy changes to hosting
+        uses: easingthemes/ssh-deploy@v2.2.12
+        with:
+          server_ip: ${{ secrets.SERVER_IP }} # Zmień na odpowiedni adres IP Twojego hostingu
+          server_port: ${{ secrets.SERVER_PORT }} # Zmień na odpowiedni port
+          username: ${{ secrets.SSH_USERNAME }} # Zmień na nazwę użytkownika
+          password: ${{ secrets.SSH_PASSWORD }} # Zmień na hasło lub użyj klucza SSH
+          local_path: ./ # Ścieżka do lokalnego repozytorium
+          remote_path: /apps/oneWord-server # Ścieżka na serwerze, gdzie mają być wdrożone zmiany
+
+      - name: Run operations on hosting
+        run: |
+          git fetch origin
+          if [ $? -ne 0 ]; then
+            echo "Błąd: Nie udało się pobrać zmian z repozytorium."
+            exit 1
+          fi
+
+          git pull origin master
+          if [ $? -ne 0 ]; then
+            echo "Błąd: Nie udało się pobrać najnowszej wersji kodu."
+            exit 1
+          fi
+
+          npm install
+          if [ $? -ne 0 ]; then
+            echo "Błąd: Nie udało się zainstalować zależności npm."
+            exit 1
+          fi
+
+          pm2 start "npm run start"

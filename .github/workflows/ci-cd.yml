@@ -20,6 +20,5 @@ jobs:
             git fetch origin
             git pull origin master
             git status
-            npm install --only=prod
-            npm install --only=prod
-            pm2 restart node1
+            npm install
+            pm2 restart 0

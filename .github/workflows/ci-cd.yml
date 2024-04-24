@@ -1,5 +1,7 @@
 name: remote ssh command
-on: [push]
+on:  
+  push:
+    branches: [ master ]
 jobs:
   build:
     name: Build
@@ -13,5 +15,11 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           key: ${{ secrets.SSH_KEY }}
           port: 10340
-          script: |
-            whoami
+           script: |
+            cd ~/home/deploy/apps/oneWord-server
+            git fetch origin
+            git pull origin master
+            git status
+            npm install --only=prod
+            npm install --only=prod
+            pm2 restart node1

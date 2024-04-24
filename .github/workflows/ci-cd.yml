@@ -21,11 +21,12 @@ jobs:
           server_port: ${{ secrets.SERVER_PORT }} # Zmień na odpowiedni port
           username: ${{ secrets.SSH_USERNAME }} # Zmień na nazwę użytkownika
           password: ${{ secrets.SSH_PASSWORD }} # Zmień na hasło lub użyj klucza SSH
-          local_path: ./ # Ścieżka do lokalnego repozytoium
-          remote_path: /apps/oneWord-server # Ścieżka na serwerze, gdzie mają być wdrożone zmiany
 
       - name: Run operations on hosting
         run: |
+          ls
+          cd apps/
+          cd oneWord-server/
           git fetch origin
           if [ $? -ne 0 ]; then
             echo "Błąd: Nie udało się pobrać zmian z repozytorium."

@@ -16,7 +16,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: 10340
           script: |
-            cd ~/home/deploy/apps/oneWord-server
+            cd ~/apps/oneWord-server
             git fetch origin
             git pull origin master
             git status

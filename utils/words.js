@@ -1,34 +1,47 @@
+import { saveLog } from '../logger.js'
 import { WordModel } from '../models/word.js'
 
-export const getShuffleWords = (words) => {
-  const shuffleWords = []
+export const getShuffleWords = (words, todayWord) => {
+  const firstRandomIndex = Math.floor(Math.random() * words.length)
+  const secondRandomIndex = Math.floor(Math.random() * words.length)
 
-  while (shuffleWords.length < 3) {
-    const randomIndex = Math.floor(Math.random() * words.length)
-    if (!shuffleWords.includes(words[randomIndex]))
-      shuffleWords.push(words[randomIndex])
-  }
+  const firstWord = words[firstRandomIndex]
+  const secondWord = words[secondRandomIndex]
+
+  const shuffleWords = [firstWord, secondWord]
 
   const formattedShuffleWords = shuffleWords.map((el) => ({
     id: el._id,
     text: el.transWord,
   }))
 
-  return formattedShuffleWords
+  const formattedTodayWord = {
+    id: todayWord._id,
+    text: todayWord.basicWord,
+  }
+
+  return [...formattedShuffleWords, formattedTodayWord]
 }
 
-export const getRandomWord = async (words) => {
-  if (!words) return { message: 'There is no more words to learn' }
+export const getRandomWord = async (words, currentWord) => {
+  if (currentWord) {
+    await WordModel.findOneAndUpdate(
+      { _id: currentWord._id },
+      { updatedDate: new Date(), status: 2 },
+      { new: false }
+    )
+  }
+
+  if (!words || words.length === 0) return null
 
   const randomIndex = Math.floor(Math.random() * words.length)
   const todayWord = words[randomIndex]
 
   const data = await WordModel.findOneAndUpdate(
-    { _id: todayWord.id },
+    { _id: todayWord._id },
     { updatedDate: new Date(), status: 1 },
     { new: true }
   )
-
   return data
 }
 

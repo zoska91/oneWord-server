@@ -14,14 +14,14 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Deploy changes to hosting
-        uses: easingthemes/ssh-deploy@v2
+        uses: actions/setup-node@master
         with:
           node-version: '20'
           server_ip: ${{ secrets.SERVER_IP }} # Zmień na odpowiedni adres IP Twojego hostingu
           server_port: ${{ secrets.SERVER_PORT }} # Zmień na odpowiedni port
           username: ${{ secrets.SSH_USERNAME }} # Zmień na nazwę użytkownika
           password: ${{ secrets.SSH_PASSWORD }} # Zmień na hasło lub użyj klucza SSH
-          local_path: ./ # Ścieżka do lokalnego repozytorium
+          local_path: ./ # Ścieżka do lokalnego repozytoium
           remote_path: /apps/oneWord-server # Ścieżka na serwerze, gdzie mają być wdrożone zmiany
 
       - name: Run operations on hosting

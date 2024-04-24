@@ -31,13 +31,16 @@ router.get('/user', async (req, res) => {
 })
 
 router.post('/login', async (req, res) => {
-  const { username, password } = req.body
+  const username = req.body.username.toLowerCase()
+  const password = req.body.password
 
   try {
     const data = await UserModel.findOne({ username })
     if (!data) {
       saveLog('warn', 'POST', 'auth/login', 'no username', { username })
-      return res.status(404).send({ message: 'Email not found' })
+      return res
+        .status(404)
+        .send({ message: 'Incorrect username or password.' })
     }
 
     bcrypt.compare(password, data.password, (err, result) => {
@@ -68,7 +71,6 @@ router.post('/login', async (req, res) => {
     })
   } catch (err) {
     if (err) {
-      console.log(err)
       saveLog('error', 'POST', 'auth/login: system error', { error: err })
 
       res.status(500).send({
@@ -80,39 +82,39 @@ router.post('/login', async (req, res) => {
 
 router.post('/register', async (req, res) => {
   try {
-    const { username, password, name } = req.body
+    const username = req.body.username.toLowerCase()
+    const password = req.body.password
     const findUser = await UserModel.findOne({ username })
 
     if (findUser) {
       saveLog('info', 'POST', 'auth/register: user exists', { username })
-
       return res
         .status(400)
         .json({ message: 'this user is already in the database' })
     }
 
     const hash = await bcrypt.hash(password, config.saltRounds)
-
     if (!hash) {
       saveLog('info', 'POST', 'auth/register: hash issue')
-      return res.status(500).json('Something is wrong with your password')
+      return res.status(400).json('Something is wrong with your password')
     }
 
     const newUser = new UserModel({
       username,
       password: hash,
-      name,
     })
 
     const errors = newUser.validateSync()
+
     if (errors) {
-      saveLog('warn', 'POST', 'auth/register: invalid data', errors)
+      saveLog('info', 'POST', 'auth/register: invalid data', errors)
       return res.status(400).json(errors)
     }
 
     const userData = await newUser.save()
+
     if (!userData) {
-      saveLog('warn', 'POST', 'auth/register: save issue')
+      saveLog('info', 'POST', 'auth/register: save issue')
       return res.status(400).json('Something wrong with saving user')
     }
 
@@ -124,9 +126,9 @@ router.post('/register', async (req, res) => {
     saveLog('info', 'POST', 'auth/register: register success', {
       userId: userData._id,
     })
+
     res.json({ message: 'success' })
   } catch (e) {
-    console.log(e)
     saveLog('error', 'POST', 'auth/register: system error', { error: e })
     res.status(500).json(e)
   }

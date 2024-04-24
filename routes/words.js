@@ -175,8 +175,8 @@ router.get('/today-word', async (req, res) => {
       )
       return res.status(401).json({ message: 'no logged user' })
     }
-
     const { id: userId } = jwt.verify(token, config.secret)
+
     const { selectLanguage, breakDay, isBreak } = await SettingsModel.findOne({
       userId,
     })
@@ -184,20 +184,23 @@ router.get('/today-word', async (req, res) => {
     if (isBreak && checkIsBreakDay(breakDay))
       return res.json({ message: 'Today is break day!' })
 
-    const words = await WordModel.find({ userId, addLang: selectLanguage })
+    const currentWord = await WordModel.findOne({ status: 1, userId })
+    const allWords = await WordModel.find({ userId, addLang: selectLanguage })
 
-    const shuffleWords = getShuffleWords(words)
+    let todayWord =
+      currentWord && currentWord._doc.updatedDate === new Date()
+        ? currentWord._doc
+        : await getRandomWord(allWords, currentWord)
 
-    const chosenWord = await WordModel.findOne({ status: 1, userId })
-    if (chosenWord) return res.json({ ...chosenWord._doc, shuffleWords })
+    if (!todayWord) return res.status(404).json({ message: 'no words' })
 
-    const resp = await getRandomWord(words)
+    const shuffleWords = getShuffleWords(allWords, todayWord)
 
-    res.json({ ...resp, shuffleWords })
+    return res.json({ ...todayWord, shuffleWords })
   } catch (e) {
     console.log(e)
     saveLog('warn', 'GET', 'today-word', 'system error', { error: e })
-    res.status(500).json({ message: 'something went wrong' })
+    return res.status(500).json({ message: 'something went wrong' })
   }
 })
 

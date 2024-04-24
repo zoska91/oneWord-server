@@ -21,14 +21,6 @@ const logger = createLogger({
   ],
 })
 
-// if (process.env.NODE_ENV !== 'production') {
-//   logger.add(
-//     new transports.Console({
-//       format: format.simple(),
-//     })
-//   )
-// }
-
 export const saveLog = (type, httpType, endpoint, message, data) => {
   console.log(type, httpType, endpoint, message, data)
   const meta = {
@@ -54,5 +46,9 @@ export const saveLog = (type, httpType, endpoint, message, data) => {
       break
   }
 }
+
+// export const saveLog = (number, text) => {
+//   logger.info(`[${number}] ${text}`)
+// }
 
 export default logger

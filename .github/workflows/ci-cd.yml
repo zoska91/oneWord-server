@@ -1,43 +1,17 @@
-name: CI/CD
-
-on:
-  push:
-    branches:
-      - master
-
+name: remote ssh command
+on: [push]
 jobs:
-  deploy:
+  build:
+    name: Build
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-
-
-  - name: Deploy using ssh
-        uses: appleboy/ssh-action@master
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@v0.1.10
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.PRIVATE_KEY }}
-          port: 22
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASWORD }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 10340
           script: |
-            cd ~/home/danielwetan/apps/node1
-            git pull origin master
-            git status
-            npm install --only=prod
-            pm2 restart node1
-
-      - name: Deploy changes to hosting
-        uses: actions/setup-node@master
-        - name: executing remote ssh commands using password
-          uses: appleboy/ssh-action@v0.1.10
-          with:
-            host: ${{ secrets.SSH_HOST }}
-            username: ${{ secrets.SSH_USERNAME }}
-            password: ${{ secrets.SSH_PASWORD }}
-            key: ${{ secrets.SSH_KEY }}
-            port: 10340
-            script: |
-              whoami
+            whoami

@@ -13,36 +13,31 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+
+
+  - name: Deploy using ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          port: 22
+          script: |
+            cd ~/home/danielwetan/apps/node1
+            git pull origin master
+            git status
+            npm install --only=prod
+            pm2 restart node1
+
       - name: Deploy changes to hosting
         uses: actions/setup-node@master
-        with:
-          node-version: '20'
-          server_ip: ${{ secrets.SERVER_IP }} # Zmień na odpowiedni adres IP Twojego hostingu
-          server_port: ${{ secrets.SERVER_PORT }} # Zmień na odpowiedni port
-          username: ${{ secrets.SSH_USERNAME }} # Zmień na nazwę użytkownika
-          password: ${{ secrets.SSH_PASSWORD }} # Zmień na hasło lub użyj klucza SSH
-
-      - name: Run operations on hosting
-        run: |
-          ls
-          cd apps/
-          cd oneWord-server/
-          git fetch origin
-          if [ $? -ne 0 ]; then
-            echo "Błąd: Nie udało się pobrać zmian z repozytorium."
-            exit 1
-          fi
-
-          git pull origin master
-          if [ $? -ne 0 ]; then
-            echo "Błąd: Nie udało się pobrać najnowszej wersji kodu."
-            exit 1
-          fi
-
-          npm install
-          if [ $? -ne 0 ]; then
-            echo "Błąd: Nie udało się zainstalować zależności npm."
-            exit 1
-          fi
-
-          pm2 start "npm run start"
+        - name: executing remote ssh commands using password
+          uses: appleboy/ssh-action@v0.1.10
+          with:
+            host: ${{ secrets.SSH_HOST }}
+            username: ${{ secrets.SSH_USERNAME }}
+            password: ${{ secrets.SSH_PASWORD }}
+            key: ${{ secrets.SSH_KEY }}
+            port: 10340
+            script: |
+              whoami

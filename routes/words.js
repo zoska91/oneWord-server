@@ -197,11 +197,11 @@ router.get('/today-word', async (req, res) => {
       userId,
       addLang: selectLanguage,
     })
-
+    console.log({ allUserWords })
     let todayWord =
       currentWord && currentWord._doc.updatedDate === new Date()
         ? currentWord._doc
-        : await getRandomWord(allUserWords, currentWord, userId)
+        : await getRandomWord(allUserWords, currentWord)
 
     if (!todayWord) return res.status(404).json({ message: 'no words' })
 

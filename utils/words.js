@@ -33,9 +33,10 @@ export const getRandomWord = async (words, currentWord) => {
   }
 
   if (!words || words.length === 0) return null
-
-  const randomIndex = Math.floor(Math.random() * words.length)
-  const todayWord = words.filter((word) => word.status === 0)?.[randomIndex]
+  const wordsToLearn = words.filter((word) => word.status === 0)
+  const randomIndex = Math.floor(Math.random() * wordsToLearn.length)
+  const todayWord = words?.[randomIndex]
+  console.log({ todayWord })
   if (!todayWord) return null
 
   const data = await WordModel.findOneAndUpdate(

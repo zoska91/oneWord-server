@@ -38,10 +38,12 @@ export const getRandomWord = async (words, currentWord) => {
   const todayWord = words[randomIndex]
 
   const data = await WordModel.findOneAndUpdate(
-    { _id: todayWord._id },
+    { _id: todayWord._id, status: 0 },
     { updatedDate: new Date(), status: 1 },
     { new: true }
   )
+  if (!data) return null
+
   return data._doc
 }
 

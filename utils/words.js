@@ -54,3 +54,14 @@ export const checkIsBreakDay = (breakDay) => {
   const todayDay = todayDate.getDay()
   return +breakDay === +todayDay
 }
+
+export const isTheSameDates = (wordDate) => {
+  const date1 = new Date(wordDate)
+  const date2 = new Date()
+
+  date1.setHours(0, 0, 0, 0)
+  date2.setHours(0, 0, 0, 0)
+
+  if (date1.getTime() === date2.getTime()) true
+  else false
+}

@@ -24,7 +24,7 @@ export const getRandomWord = async (words) => {
   const todayWord = words[randomIndex]
 
   const data = await WordModel.findOneAndUpdate(
-    { _id: todayWord.id },
+    { _id: todayWord.id, status: 0 },
     { updatedDate: new Date(), status: 1 },
     { new: true }
   )

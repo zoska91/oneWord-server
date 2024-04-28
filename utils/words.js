@@ -39,7 +39,7 @@ export const getRandomWord = async (words, currentWord) => {
   const wordsToLearn = words.filter((word) => word.status === 0)
   const randomIndex = Math.floor(Math.random() * wordsToLearn.length)
   const todayWord = wordsToLearn?.[randomIndex]
-  console.log({ todayWord })
+
   if (!todayWord) return null
 
   const data = await WordModel.findOneAndUpdate(
@@ -65,6 +65,6 @@ export const isTheSameDates = (wordDate) => {
   date1.setHours(0, 0, 0, 0)
   date2.setHours(0, 0, 0, 0)
 
-  if (date1.getTime() === date2.getTime()) true
-  else false
+  if (date1.getTime() === date2.getTime()) return true
+  else return false
 }

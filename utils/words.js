@@ -35,7 +35,7 @@ export const getRandomWord = async (words, currentWord) => {
   if (!words || words.length === 0) return null
   const wordsToLearn = words.filter((word) => word.status === 0)
   const randomIndex = Math.floor(Math.random() * wordsToLearn.length)
-  const todayWord = words?.[randomIndex]
+  const todayWord = wordsToLearn?.[randomIndex]
   console.log({ todayWord })
   if (!todayWord) return null
 

@@ -6,7 +6,10 @@ export const getShuffleWords = (words, todayWord) => {
   const secondRandomIndex = Math.floor(Math.random() * words.length)
 
   const firstWord = words[firstRandomIndex]
-  const secondWord = words[secondRandomIndex]
+  const secondWord =
+    firstRandomIndex === secondRandomIndex
+      ? words[secondRandomIndex + 1]
+      : words[secondRandomIndex]
 
   const shuffleWords = [firstWord, secondWord]
 

@@ -17,7 +17,7 @@ export const getShuffleWords = (words, todayWord) => {
 
   const formattedTodayWord = {
     id: todayWord._id,
-    text: todayWord.basicWord,
+    text: todayWord.transWord,
   }
 
   return [...formattedShuffleWords, formattedTodayWord]

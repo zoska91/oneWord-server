@@ -122,12 +122,20 @@ router.post('/add-csv', async (req, res) => {
 router.put('/update-one/:id', async (req, res) => {
   try {
     const id = mongoose.Types.ObjectId(req.params.id)
-
     const data = await WordModel.findOneAndUpdate(
-      { _id: id },
+      { _id: req.params.id },
       { updatedDate: new Date(), ...req.body },
       { new: true }
     )
+
+    if (!data) {
+      saveLog('info', 'PUT', 'words/update-one', 'word not found', {
+        wordId: id,
+      })
+
+      res.status(404).json({ message: 'word not found' })
+      return
+    }
     saveLog('info', 'PUT', 'words/update-one', 'update success', { wordId: id })
 
     res.json(data)

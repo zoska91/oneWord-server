@@ -42,7 +42,7 @@ export const getRandomWord = async (words, currentWord) => {
     { updatedDate: new Date(), status: 1 },
     { new: true }
   )
-  return data
+  return data._doc
 }
 
 export const checkIsBreakDay = (breakDay) => {

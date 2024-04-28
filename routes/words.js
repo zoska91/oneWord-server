@@ -193,16 +193,19 @@ router.get('/today-word', async (req, res) => {
       return res.json({ message: 'Today is break day!' })
 
     const currentWord = await WordModel.findOne({ status: 1, userId })
-    const allWords = await WordModel.find({ userId, addLang: selectLanguage })
+    const allUserWords = await WordModel.find({
+      userId,
+      addLang: selectLanguage,
+    })
 
     let todayWord =
       currentWord && currentWord._doc.updatedDate === new Date()
         ? currentWord._doc
-        : await getRandomWord(allWords, currentWord)
+        : await getRandomWord(allUserWords, currentWord, userId)
 
     if (!todayWord) return res.status(404).json({ message: 'no words' })
 
-    const shuffleWords = getShuffleWords(allWords, todayWord)
+    const shuffleWords = getShuffleWords(allUserWords, todayWord)
 
     return res.json({ ...todayWord, shuffleWords })
   } catch (e) {

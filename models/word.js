@@ -4,7 +4,7 @@ const wordSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, required: true },
   basicWord: { type: String, required: [true, 'to pole jest wymagane'] },
   transWord: { type: String, required: [true, 'to pole jest wymagane'] },
-  addLang: { type: String, default: 'en' },
+  addLang: { type: Number, default: 7 },
   status: { type: Number, default: 0 },
   createdDate: { type: Date, default: new Date() },
   updatedDate: { type: Date },

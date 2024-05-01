@@ -10,7 +10,7 @@ const SettingsSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
-  breakDay: { type: String, default: '7' },
+  breakDay: { type: Number, default: 7 },
   isBreak: { type: Boolean, default: true },
   isSummary: { type: Boolean, default: true },
   notifications: {
@@ -21,9 +21,12 @@ const SettingsSchema = new mongoose.Schema({
       { time: '12:42', type: '3' },
     ],
   },
-  selectLanguage: { type: String, default: 'en' },
-  summaryDay: { type: String, default: '1' },
+  languageToLearn: { type: Number, default: 7 },
+  summaryDay: { type: Number, default: 1 },
 })
 
 export const SettingsModel = mongoose.model('Settings', SettingsSchema)
-export const NotificationModel = mongoose.model('Notification', NotificationSchema)
+export const NotificationModel = mongoose.model(
+  'Notification',
+  NotificationSchema
+)

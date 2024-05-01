@@ -2,6 +2,11 @@ import { saveLog } from '../logger.js'
 import { WordModel } from '../models/word.js'
 
 export const getShuffleWords = (words, todayWord) => {
+  const formattedTodayWord = {
+    id: todayWord._id,
+    text: todayWord.transWord,
+  }
+
   const firstRandomIndex = Math.floor(Math.random() * words.length)
   const secondRandomIndex = Math.floor(Math.random() * words.length)
 
@@ -11,22 +16,26 @@ export const getShuffleWords = (words, todayWord) => {
       ? words[secondRandomIndex + 1]
       : words[secondRandomIndex]
 
+  if (!firstWord || !secondWord) {
+    saveLog('error', 'GET', 'getShuffleWords', 'no words', {
+      firstWord,
+      secondWord,
+    })
+    return [formattedTodayWord, formattedTodayWord, formattedTodayWord]
+  }
   const shuffleWords = [firstWord, secondWord]
 
   const formattedShuffleWords = shuffleWords.map((el) => ({
-    id: el._id,
-    text: el.transWord,
+    id: el?._id,
+    text: el?.transWord,
   }))
-
-  const formattedTodayWord = {
-    id: todayWord._id,
-    text: todayWord.transWord,
-  }
 
   return [...formattedShuffleWords, formattedTodayWord]
 }
 
 export const getRandomWord = async (words, currentWord) => {
+  console.log('getRandomWord')
+
   if (currentWord) {
     await WordModel.findOneAndUpdate(
       { _id: currentWord._id },

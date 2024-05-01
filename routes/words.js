@@ -186,7 +186,7 @@ router.get('/today-word', async (req, res) => {
     }
     const { id: userId } = jwt.verify(token, config.secret)
 
-    const { selectLanguage, breakDay, isBreak } = await SettingsModel.findOne({
+    const { languageToLearn, breakDay, isBreak } = await SettingsModel.findOne({
       userId,
     })
 
@@ -196,17 +196,20 @@ router.get('/today-word', async (req, res) => {
     const currentWord = await WordModel.findOne({ status: 1, userId })
     const allUserWords = await WordModel.find({
       userId,
-      addLang: selectLanguage,
+      // addLang: languageToLearn, // TODO!!!
     })
+    const words = allUserWords.filter(
+      (word) => word.addLang === languageToLearn
+    )
 
     let todayWord =
       currentWord && isTheSameDates(currentWord._doc.updatedDate)
         ? currentWord._doc
-        : await getRandomWord(allUserWords, currentWord, userId)
+        : await getRandomWord(words, currentWord, userId)
 
     if (!todayWord) return res.status(404).json({ message: 'no words' })
 
-    const shuffleWords = getShuffleWords(allUserWords, todayWord)
+    const shuffleWords = getShuffleWords(words, todayWord)
 
     return res.json({ ...todayWord, shuffleWords })
   } catch (e) {

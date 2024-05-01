@@ -91,6 +91,11 @@ router.post('/add-csv', async (req, res) => {
     csvtojson({ noheader: false, output: 'json' })
       .fromString(file.data.toString('utf8'))
       .then((jsonObj) => {
+        if (!jsonObj.length)
+          return res.status(400).json({ message: 'empty file' })
+        if (jsonObj.length > 50)
+          return res.status(200).json({ message: 'to much rows' })
+
         jsonObj.forEach((word) => {
           if (!word.basicWord)
             return res.status(400).json({ message: 'wrong basic word key' })

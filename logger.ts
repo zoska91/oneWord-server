@@ -1,5 +1,7 @@
-import path from 'path'
-import { createLogger, transports, format } from 'winston'
+import { createLogger, transports, format } from 'winston';
+
+type LogType = 'info' | 'warn' | 'error';
+type HttpType = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
 const logger = createLogger({
   level: 'info',
@@ -19,36 +21,40 @@ const logger = createLogger({
     // }),
     new transports.Console(),
   ],
-})
+});
 
-export const saveLog = (type, httpType, endpoint, message, data) => {
-  console.log(type, httpType, endpoint, message, data)
+export const saveLog = (
+  type: LogType,
+  httpType: HttpType,
+  endpoint: string,
+  message: string,
+  data: any
+) => {
   const meta = {
     endpoint,
     httpType,
     message,
     data,
-  }
-  console.log(type, httpType, endpoint, message, data)
+  };
 
   switch (type) {
     case 'info':
-      logger.info(`[${httpType}] ${endpoint}: ${message}`, meta)
-      break
+      logger.info(`[${httpType}] ${endpoint}: ${message}`, meta);
+      break;
     case 'warn':
-      logger.warn(`[${httpType}] ${endpoint}: ${message}`, meta)
-      break
+      logger.warn(`[${httpType}] ${endpoint}: ${message}`, meta);
+      break;
     case 'error':
-      logger.error(`[${httpType}] ${endpoint}: ${message}`, meta)
-      break
+      logger.error(`[${httpType}] ${endpoint}: ${message}`, meta);
+      break;
 
     default:
-      break
+      break;
   }
-}
+};
 
 // export const saveLog = (number, text) => {
 //   logger.info(`[${number}] ${text}`)
 // }
 
-export default logger
+export default logger;

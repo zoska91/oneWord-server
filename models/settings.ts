@@ -1,9 +1,24 @@
-import mongoose from 'mongoose'
+import mongoose, { Types } from 'mongoose';
+
+export interface INotification extends Document {
+  time: string;
+  type: string;
+}
+
+export interface ISettings extends Document {
+  userId: Types.ObjectId;
+  breakDay: number;
+  isBreak: boolean;
+  isSummary: boolean;
+  notifications: Notification[];
+  languageToLearn: number;
+  summaryDay: number;
+}
 
 const NotificationSchema = new mongoose.Schema({
   time: String,
   type: String,
-})
+});
 
 const SettingsSchema = new mongoose.Schema({
   userId: {
@@ -23,10 +38,13 @@ const SettingsSchema = new mongoose.Schema({
   },
   languageToLearn: { type: Number, default: 7 },
   summaryDay: { type: Number, default: 1 },
-})
+});
 
-export const SettingsModel = mongoose.model('Settings', SettingsSchema)
-export const NotificationModel = mongoose.model(
+export const SettingsModel = mongoose.model<ISettings>(
+  'Settings',
+  SettingsSchema
+);
+export const NotificationModel = mongoose.model<INotification>(
   'Notification',
   NotificationSchema
-)
+);

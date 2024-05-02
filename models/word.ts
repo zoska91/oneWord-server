@@ -1,4 +1,14 @@
-import mongoose from 'mongoose'
+import mongoose, { Document, Types } from 'mongoose';
+
+export interface IWord extends Document {
+  userId: Types.ObjectId;
+  basicWord: string;
+  transWord: string;
+  addLang: number;
+  status: number;
+  createdDate: Date;
+  updatedDate: Date;
+}
 
 const wordSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, required: true },
@@ -7,10 +17,10 @@ const wordSchema = new mongoose.Schema({
   addLang: { type: Number, default: 7 },
   status: { type: Number, default: 0 },
   createdDate: { type: Date, default: new Date() },
-  updatedDate: { type: Date },
-})
+  updatedDate: { type: Date, default: new Date() },
+});
 
-export const WordModel = mongoose.model('Word', wordSchema)
+export const WordModel = mongoose.model<IWord>('Word', wordSchema);
 
 //status
 // 0 - new (to learn)

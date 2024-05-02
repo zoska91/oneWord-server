@@ -3,7 +3,7 @@ import { fileURLToPath } from 'url';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
-// import cors from 'cors';
+import cors from 'cors';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import fileupload from 'express-fileupload';
@@ -11,9 +11,9 @@ import fileupload from 'express-fileupload';
 import config from './config';
 
 import authRouter from './routes/auth';
-import settingRoute from './routes/settings.js';
-import wordsRoute from './routes/words.js';
-import chatRoute from './routes/chat';
+import settingRoute from './routes/settings';
+import wordsRoute from './routes/words';
+// import chatRoute from './routes/chat';
 
 dbConnect().catch((err) => console.log(err));
 
@@ -37,7 +37,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-// app.use(cors());
+app.use(cors());
 app.use(fileupload());
 app.use(
   session({
@@ -53,7 +53,7 @@ app.use(
 app.use('/api/auth', authRouter);
 app.use('/api/settings', settingRoute);
 app.use('/api/words', wordsRoute);
-app.use('/api/chat', chatRoute);
+// app.use('/api/chat', chatRoute);
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

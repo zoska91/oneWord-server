@@ -1,15 +1,17 @@
 import mongoose from 'mongoose';
 
 export interface IMessage extends Document {
-  content: string;
-  role: 'user' | 'system' | 'assistant';
+  human: string;
+  ai: string;
   conversationId: string;
+  created_at: Date;
 }
 
 const messageSchema = new mongoose.Schema({
-  content: { type: String, required: true },
-  password: { type: String, required: true },
+  human: { type: String, required: true },
+  ai: { type: String, required: true },
   conversationId: { type: String, required: true },
+  created_at: { type: Date, default: Date.now },
 });
 
 export const MessageModel = mongoose.model<IMessage>('Message', messageSchema);

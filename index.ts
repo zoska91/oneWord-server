@@ -13,7 +13,7 @@ import config from './config';
 import authRouter from './routes/auth';
 import settingRoute from './routes/settings';
 import wordsRoute from './routes/words';
-// import chatRoute from './routes/chat';
+import chatRoute from './routes/chat';
 
 dbConnect().catch((err) => console.log(err));
 
@@ -53,7 +53,7 @@ app.use(
 app.use('/api/auth', authRouter);
 app.use('/api/settings', settingRoute);
 app.use('/api/words', wordsRoute);
-// app.use('/api/chat', chatRoute);
+app.use('/api/chat', chatRoute);
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

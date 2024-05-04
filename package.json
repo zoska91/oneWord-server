@@ -12,6 +12,7 @@
     "build": "node ./index.js"
   },
   "dependencies": {
+    "@langchain/openai": "^0.0.28",
     "bcrypt": "^5.1.0",
     "connect-mongo": "^4.6.0",
     "cookie-parser": "~1.4.4",

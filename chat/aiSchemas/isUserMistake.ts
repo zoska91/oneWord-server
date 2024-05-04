@@ -8,8 +8,8 @@ const schemas = (languageToLearn: string) => ({
         type: 'number',
         description: `
           Type has to be set to either 1 or 0:
-          0: mistake — when you found mistake in user message.
-          1: correct — when user message is correct.
+          1: mistake — when you found mistake in user message.
+          0: correct — when user message is correct.
         `,
       },
       answer: {
@@ -17,6 +17,12 @@ const schemas = (languageToLearn: string) => ({
         description: `
           if user made mistake in message, you have to correct it and send back to user.
           If message is correct leave it empty
+        `,
+      },
+      mistake: {
+        type: 'string',
+        description: `
+          if user made mistake in message, send back to user mistake message.
         `,
       },
     },

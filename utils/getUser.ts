@@ -27,7 +27,7 @@ export const getUser = async (authorization?: string) => {
       username: string;
       id: string;
     };
-    const user = await UserModel.findOne({ id }).lean();
+    const user = await UserModel.findOne({ _id: id }).lean();
 
     return user;
   } catch (e) {

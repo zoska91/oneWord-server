@@ -4,14 +4,17 @@ import {
   AIMessage,
 } from '@langchain/core/messages';
 import { saveLog } from '../logger';
-import { MessageModel } from '../models/message';
+import { IMistake, MessageModel } from '../models/message';
 import { currentConversationPrompt } from '../chat/prompts/currentConversation';
 import { newConversationPrompt } from '../chat/prompts/newConversation';
+import { rerank } from './openai';
+import { searchMemories } from '../chat/qdrant/searchMemories';
 
 export const getPrompt = (isNewConversation: boolean, isTodayWord: boolean) => {
   const currentPrompts = isNewConversation
     ? newConversationPrompt
     : currentConversationPrompt;
+
   let currentPrompt = isTodayWord
     ? currentPrompts.withWord
     : currentPrompts.noWord;
@@ -19,8 +22,16 @@ export const getPrompt = (isNewConversation: boolean, isTodayWord: boolean) => {
   return currentPrompt;
 };
 
-export const getMemories = (userId: string) => {
-  // get data from qdrant `memoried_${userId}`
+export const getMemories = async (userId: string, query: string) => {
+  const collectionName = `oneWord-${userId}`;
+  const noQuery = 'get random memory to start conversation';
+  const documents = await searchMemories(
+    collectionName,
+    query !== '' ? query : noQuery
+  );
+  if (documents.length === 0) return '';
+  const memories = rerank(query, documents);
+
   return '';
 };
 
@@ -33,18 +44,25 @@ export const getMessages = async ({
   conversationId?: string;
   currentPrompt: string;
 }): Promise<(SystemMessage | HumanMessage | AIMessage)[]> => {
-  const messagesHistory = Boolean(conversationId)
-    ? (await MessageModel.find({ conversationId }).lean()).map((message) => {
-        if (message.human) return new HumanMessage(message.human);
-        else return new AIMessage(message.ai);
-      })
-    : [];
+  const messagesHistory: (SystemMessage | HumanMessage | AIMessage)[] = [];
 
-  const messages = [
-    new SystemMessage(currentPrompt),
-    ...messagesHistory,
-    new HumanMessage(query),
-  ];
+  if (conversationId) {
+    const messageResp = await MessageModel.find({ conversationId }).lean();
+    messageResp.forEach((message) => {
+      messagesHistory.push(new AIMessage(message.ai));
+      messagesHistory.push(new HumanMessage(message.human));
+    });
+  }
+  console.log({ conversationId });
+  // if no query and conversation - it initial message
+  const messages =
+    conversationId && query
+      ? [
+          new SystemMessage(currentPrompt),
+          ...messagesHistory,
+          new HumanMessage(query),
+        ]
+      : [new SystemMessage(currentPrompt)];
 
   return messages;
 };
@@ -53,15 +71,19 @@ export const saveMessage = async ({
   conversationId,
   humanMessage,
   aiMessage,
+  mistakes,
 }: {
   conversationId: string;
   humanMessage: string;
   aiMessage: string;
+  mistakes: IMistake[];
 }) => {
+  console.log(4, conversationId, humanMessage, aiMessage);
   const newMessage = new MessageModel({
     conversationId,
-    human: humanMessage,
+    human: humanMessage || 'initial message',
     ai: aiMessage,
+    mistakes,
   });
   newMessage.save();
 };

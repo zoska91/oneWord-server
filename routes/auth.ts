@@ -37,7 +37,7 @@ router.post('/login', async (req, res) => {
         .send({ message: 'Incorrect username or password.' });
     }
 
-    bcrypt.compare(password, data.password, (err, result) => {
+    bcrypt.compare(password, data.password, async (err, result) => {
       if (result) {
         var token = jwt.sign(
           { id: data._id, username: data.username },
@@ -51,6 +51,7 @@ router.post('/login', async (req, res) => {
         res.status(200).send({
           message: 'Login Successful',
           token,
+          isAi: data.isAi,
         });
       } else {
         saveLog('warn', 'POST', 'auth/login', 'wrong password', {

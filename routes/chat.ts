@@ -15,7 +15,10 @@ import {
   getMistakeFromAi,
   getSummaryConversation,
 } from '../utils/openai';
-import { IPromptData } from '../chat/prompts/currentConversation';
+import {
+  IPromptData,
+  currentConversationPrompt,
+} from '../chat/prompts/currentConversation';
 import { IMistake, INewWord, MessageModel } from '../models/message';
 
 const router = express.Router();
@@ -60,6 +63,7 @@ router.post('/message', async (req, res) => {
   let newWords: INewWord[] = [];
 
   if (mistakeResp && mistakeResp.isMistake === 1) {
+    currentPrompt = currentConversationPrompt.withMistake;
     mistakes = mistakeResp.mistakes?.map((mistake) => ({
       ...mistake,
       id: v4(),

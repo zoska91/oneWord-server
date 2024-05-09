@@ -3,12 +3,16 @@ import {
   SystemMessage,
   AIMessage,
 } from '@langchain/core/messages';
+import { v4 } from 'uuid';
+
 import { saveLog } from '../logger';
-import { IMistake, MessageModel } from '../models/message';
+import { IMistake, INewWord, MessageModel } from '../models/message';
 import { currentConversationPrompt } from '../chat/prompts/currentConversation';
 import { newConversationPrompt } from '../chat/prompts/newConversation';
 import { rerank } from './openai';
-import { searchMemories } from '../chat/qdrant/searchMemories';
+import { saveMemory } from '../chat/qdrant/setData';
+import { MemoriesModel } from '../models/memories';
+import { searchMemories } from '../chat/qdrant/searchmemories';
 
 export const getPrompt = (isNewConversation: boolean, isTodayWord: boolean) => {
   const currentPrompts = isNewConversation
@@ -22,17 +26,26 @@ export const getPrompt = (isNewConversation: boolean, isTodayWord: boolean) => {
   return currentPrompt;
 };
 
-export const getMemories = async (userId: string, query: string) => {
-  const collectionName = `oneWord-${userId}`;
-  const noQuery = 'get random memory to start conversation';
-  const documents = await searchMemories(
-    collectionName,
-    query !== '' ? query : noQuery
-  );
-  if (documents.length === 0) return '';
-  const memories = rerank(query, documents);
+export const getMemories = async (
+  userId: string,
+  query: string,
+  isNewConversation: boolean
+) => {
+  if (isNewConversation) {
+    const memories = await MemoriesModel.find({ userId })
+      .sort({ created_at: -1 })
+      .limit(3)
+      .lean();
+    return memories.map((mem) => mem.description).join('');
+  }
 
-  return '';
+  const collectionName = `oneWord-${userId}`;
+  const documents = await searchMemories(collectionName, query);
+  if (documents.length === 0) return '';
+
+  const memories = await rerank(query, documents);
+
+  return memories.map((mem) => mem.content).join('');
 };
 
 export const getMessages = async ({
@@ -53,7 +66,6 @@ export const getMessages = async ({
       messagesHistory.push(new HumanMessage(message.human));
     });
   }
-  console.log({ conversationId });
   // if no query and conversation - it initial message
   const messages =
     conversationId && query
@@ -72,18 +84,47 @@ export const saveMessage = async ({
   humanMessage,
   aiMessage,
   mistakes,
+  newWords,
+  userId,
 }: {
   conversationId: string;
   humanMessage: string;
   aiMessage: string;
   mistakes: IMistake[];
+  newWords: INewWord[];
+  userId: string;
 }) => {
-  console.log(4, conversationId, humanMessage, aiMessage);
   const newMessage = new MessageModel({
     conversationId,
     human: humanMessage || 'initial message',
     ai: aiMessage,
     mistakes,
+    words: newWords,
+    userId,
+  });
+  newMessage.save();
+};
+
+export const saveSummary = async (
+  summary: string,
+  userId: string,
+  conversationId: string
+) => {
+  const collectionName = `oneWord-${userId}`;
+  const id = v4();
+  const data = {
+    id,
+    content: summary,
+    conversationId,
+  };
+
+  saveMemory(collectionName, [data]);
+
+  const newMessage = new MemoriesModel({
+    conversationId,
+    qdrantId: id,
+    description: summary,
+    userId,
   });
   newMessage.save();
 };

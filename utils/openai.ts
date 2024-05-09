@@ -12,12 +12,15 @@ import isUserMistake from '../chat/aiSchemas/isUserMistake';
 import { saveLog } from '../logger';
 import { saveMessage } from './conversation';
 import { currentDate } from './currentDate';
-import { IMessage, IMistake } from '../models/message';
+import { IMessage, IMistake, INewWord } from '../models/message';
 import { summaryConversation } from '../chat/prompts/summaryConversation';
+import { IDocumentPayload } from '../chat/qdrant/searchmemories';
 
 interface IMistakeAiResp {
   isMistake: 1 | 0;
+  isNewWord: 1 | 0;
   mistakes: { mistake: string; correction: string }[];
+  newWords: { word: string }[];
 }
 
 const client = new OpenAI();
@@ -33,7 +36,6 @@ export const getMistakeFromAi = async (
     messages: [{ role: 'user', content: message }],
     function_call: 'auto',
   });
-  console.log('getMistakeFromAi', resp.choices[0].message);
 
   const dataJSON = resp.choices[0].message?.function_call?.arguments;
   const data: IMistakeAiResp | null = dataJSON ? JSON.parse(dataJSON) : null;
@@ -48,6 +50,8 @@ export const getAnswerAi = async ({
   res,
   query,
   mistakes,
+  newWords,
+  userId,
 }: {
   messages: (SystemMessage | HumanMessage | AIMessage)[];
   isStreaming?: boolean;
@@ -55,6 +59,8 @@ export const getAnswerAi = async ({
   res: Response;
   query: string;
   mistakes: IMistake[];
+  newWords: INewWord[];
+  userId: string;
 }) => {
   const modelSettings = {
     modelName: 'gpt-3.5-turbo',
@@ -76,6 +82,8 @@ export const getAnswerAi = async ({
                 humanMessage: query,
                 aiMessage: output.generations[0][0].text,
                 mistakes,
+                newWords,
+                userId,
               });
             },
           },
@@ -91,30 +99,46 @@ export const getAnswerAi = async ({
   };
 };
 
-export const getSummaryConversation = async (messages: IMessage[]) => {
+export const getSummaryConversation = async ({
+  messages,
+  userName,
+  aiName,
+}: {
+  messages: IMessage[];
+  userName: string;
+  aiName: string;
+}) => {
   const model = new ChatOpenAI({
     model: 'gpt-3.5-turbo',
     temperature: 0.9,
   });
+
   const res = await model.invoke([
-    new SystemMessage(summaryConversation(messages)),
+    new SystemMessage(summaryConversation({ messages, userName, aiName })),
   ]);
-  console.log({ res });
+
+  const summary: string = Array.isArray(res.content)
+    ? res.content.join(', ')
+    : res.content;
+  return summary;
 };
 
-export const rerank = async (query: string, documents: any) => {
+export const rerank = async (
+  query: string,
+  documents: IDocumentPayload[]
+): Promise<IDocumentPayload[]> => {
   const model = new ChatOpenAI({
-    modelName: 'gpt-3.5',
+    modelName: 'gpt-3.5-turbo',
     temperature: 0,
     maxConcurrency: 15,
   });
-  console.log('Reranking documents...');
+
+  console.log(documents);
 
   const checks: any = [];
-  for (const [document] of documents) {
-    console.log('Checking document: ' + document.metadata.name);
+  for (const document of documents) {
     checks.push({
-      uuid: document.metadata.uuid,
+      id: document.id,
       rank: model.invoke([
         new SystemMessage(`Check if the following document is relevant to the user query: """${query}""" and may be helpful to answer the question / query. Return 0 if not relevant, 1 if relevant.
           Facts: 
@@ -125,7 +149,7 @@ export const rerank = async (query: string, documents: any) => {
             - Pay attention to the keywords from the query, mentioned links etc.
             
             Additional info: 
-            Document content: ###${document.pageContent}###
+            Document content: ###${document.content}###
             
             Query:
             `),
@@ -135,14 +159,14 @@ export const rerank = async (query: string, documents: any) => {
   }
 
   const results = await Promise.all(checks.map((check: any) => check.rank));
+  console.log({ results });
   const rankings = results.map((result, index) => {
-    return { uuid: checks[index].uuid, score: result.content };
+    return { id: checks[index].id, score: result.content };
   });
-  console.log('Reranked documents.');
+  console.log({ rankings });
   return documents.filter((document: any) =>
     rankings.find(
-      (ranking) =>
-        ranking.uuid === document[0].metadata.uuid && ranking.score === '1'
+      (ranking) => ranking.id === document.id && ranking.score === '1'
     )
   );
 };

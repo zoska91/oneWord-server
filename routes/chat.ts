@@ -8,14 +8,15 @@ import {
   getMessages,
   getPrompt,
   saveMessage,
+  saveSummary,
 } from '../utils/conversation';
 import {
   getAnswerAi,
   getMistakeFromAi,
   getSummaryConversation,
 } from '../utils/openai';
-import { currentConversationPrompt } from '../chat/prompts/currentConversation';
-import { IMistake, MessageModel } from '../models/message';
+import { IPromptData } from '../chat/prompts/currentConversation';
+import { IMistake, INewWord, MessageModel } from '../models/message';
 
 const router = express.Router();
 
@@ -27,7 +28,6 @@ router.post('/message', async (req, res) => {
     res.status(404).json({ message: 'no logged user' });
     return;
   }
-  console.log(req.body);
 
   const {
     query,
@@ -36,17 +36,18 @@ router.post('/message', async (req, res) => {
     todayWord,
     currentConversationId,
   } = req.body;
-  console.log({ query, languageToLearn, isStreaming, todayWord });
 
   const isNewConversation = !Boolean(currentConversationId);
   const conversationId = currentConversationId || v4();
   res.setHeader('x-conversation-id', conversationId);
 
-  console.log({
-    isNewConversation,
-    conversationId,
-    headers: req.headers['x-new-conversation'],
-  });
+  // ==== MEMORIES =====
+  const memories = await getMemories(
+    user._id.toString(),
+    query,
+    isNewConversation
+  );
+
   // ====== PROMPT =====
   let currentPrompt = getPrompt(Boolean(isNewConversation), Boolean(todayWord));
 
@@ -56,24 +57,36 @@ router.post('/message', async (req, res) => {
     query !== '' ? await getMistakeFromAi(languageToLearn, query) : null;
 
   let mistakes: IMistake[] = [];
+  let newWords: INewWord[] = [];
+
   if (mistakeResp && mistakeResp.isMistake === 1) {
-    currentPrompt = currentConversationPrompt.withMistake;
-    mistakes = mistakeResp.mistakes.map((mistake) => ({
+    mistakes = mistakeResp.mistakes?.map((mistake) => ({
       ...mistake,
       id: v4(),
     }));
   }
 
-  // ==== MEMORIES =====
-  const memories = await getMemories(user._id.toString(), query);
-  console.log('********');
-  console.log({ memories });
+  if (mistakeResp && mistakeResp.isNewWord === 1) {
+    newWords = mistakeResp.newWords?.map((newWord) => ({
+      ...newWord,
+      id: v4(),
+    }));
+  }
+
+  const promptData: IPromptData = {
+    languageToLearn,
+    memories,
+    userName: user.name,
+    aiName: user.aiName,
+    word: todayWord,
+    mistakes: mistakes?.map((mistake) => mistake.mistake).join('.'),
+  };
 
   // ==== MESSAGES =====
   const messages = await getMessages({
     query,
     conversationId,
-    currentPrompt: currentPrompt(memories, languageToLearn),
+    currentPrompt: currentPrompt(promptData),
   });
 
   // ==== ANSWER + streaming =====
@@ -84,6 +97,8 @@ router.post('/message', async (req, res) => {
     conversationId,
     query,
     mistakes,
+    newWords,
+    userId: user._id.toString(),
   });
 
   // ==== SAVE ANSWER if not streaming =====
@@ -93,12 +108,14 @@ router.post('/message', async (req, res) => {
       humanMessage: query,
       aiMessage: answer ?? 'No answer.',
       mistakes,
+      newWords,
+      userId: user._id.toString(),
     });
     return res.json({ answer, conversationId });
   } else res.end();
 });
 
-router.get('finished-conversation', async (req, res) => {
+router.post('/finished-conversation', async (req, res) => {
   const user = await getUser(req?.headers?.authorization);
 
   if (user === 401 || !user || !user.isAi) {
@@ -106,8 +123,8 @@ router.get('finished-conversation', async (req, res) => {
     res.status(404).json({ message: 'no logged user' });
     return;
   }
+  const { conversationId } = req.body;
 
-  const conversationId = (req.headers['x-conversation-id'] as string) || v4();
   if (!conversationId) {
     saveLog('error', 'POST', 'chat/finished-conversation', 'no conversation', {
       user,
@@ -116,8 +133,20 @@ router.get('finished-conversation', async (req, res) => {
     return;
   }
 
+  let mistakes: IMistake[] = [];
   const messages = await MessageModel.find({ conversationId }).lean();
-  const summary = getSummaryConversation(messages);
+  messages.forEach((message) => {
+    mistakes = [...mistakes, ...message.mistakes];
+  });
+
+  const summary = await getSummaryConversation({
+    messages,
+    userName: user.name,
+    aiName: user.aiName,
+  });
+
+  await saveSummary(summary, user._id.toString(), conversationId);
+  res.json({ mistakes });
 });
 
 router.get('/api-key', async (req, res) => {

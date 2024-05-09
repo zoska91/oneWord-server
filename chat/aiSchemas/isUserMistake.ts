@@ -6,8 +6,15 @@ const schemas = (languageToLearn: string) => ({
     properties: {
       isMistake: {
         type: 'number',
-        description:
-          "Type has to be set to either 1 or 0: 1 for mistake, when you found a mistake in the user's message; 0 for correct, when the user's message is correct.",
+        description: `Type has to be set to either 1 or 0: 
+          1 for mistake, when you found a mistake in the user's message; 
+          0 for correct, when the user's message is correct.`,
+      },
+      isNewWord: {
+        type: 'number',
+        description: `Type has to be set to either 1 or 0: 
+          1 when user said that is new word for them or they said they don't know some fraze/word/sentence; 
+          0 when there is no information about new word/something that user doesn't understand`,
       },
       mistakes: {
         type: 'array',
@@ -27,6 +34,21 @@ const schemas = (languageToLearn: string) => ({
             },
           },
           required: ['mistake', 'correction'],
+        },
+      },
+      newWords: {
+        type: 'array',
+        description: `All words/frazes/sentences that the user didn't know, didn't understand. If there are no new thing, return an empty array. `,
+        items: {
+          type: 'object',
+          properties: {
+            newWord: {
+              type: 'string',
+              description:
+                "What was the mistake in the user's message. If there is single word is sentence add to mistake whole sentence",
+            },
+          },
+          required: ['newWord'],
         },
       },
     },

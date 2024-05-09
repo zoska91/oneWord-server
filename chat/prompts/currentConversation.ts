@@ -1,14 +1,23 @@
 import { basePrompt } from './basePrompt';
 
+export interface IPromptData {
+  languageToLearn: string;
+  memories: string;
+  userName: string;
+  aiName: string;
+  word?: string;
+  mistakes: string;
+}
+
 export const currentConversationPrompt = {
-  withWord: (memories: string, word: string) => `
-    ${basePrompt('English', memories)}
-    We were talking about the word "${word}". try to keep this word and prepare example, question. If you did that before prepare sentence with similar word and ask user for creating same sentnce but with new word.
+  noWord: (data: IPromptData) => `
+  ${basePrompt(data)}
+  Let's continue our discussion.
   `,
-  noWord: (memories: string) => `
-    ${basePrompt('English', memories)}
-    Let's continue our discussion.
+  withWord: (data: IPromptData) => `
+    ${basePrompt(data)}
+    We were talking about the word "${
+      data.word
+    }".  I will keep this word and prepare example, question. If I did that before prepare sentence with similar word and ask user for creating same sentence but with new word.
   `,
-  withMistake: (mistake: string) =>
-    `You made a mistake. The correct sentance is "${mistake}". Do you want repeat or continue?`,
 };

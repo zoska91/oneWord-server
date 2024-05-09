@@ -1,13 +1,23 @@
 import { basePrompt } from './basePrompt';
+import { IPromptData } from './currentConversation';
 
 export const newConversationPrompt = {
-  noWord: (memories: string) => `
-  ${basePrompt('English', memories)}
-  This is the new conversation and you should start it. 
-  Let's discuss a new topic today. Based on your interests, interesting facts, previous mistakes, etc.
+  noWord: (data: IPromptData) => `
+  ${basePrompt(data)}
+  This is the new conversation and I should start it. Say hello to ${
+    data.userName
+  } and start new topic. Based on ${
+    data.userName
+  }'s interests, hobbies, interesting facts, previous mistakes, etc.
   `,
-  withWord: (memories: string, word: string) => `
-  ${basePrompt('English', memories)}
-  Today's word is "${word}". Prepare a sentence with that word and send it to user. Ask him if they understand it and it they want to explanation or create their own sentence
+  withWord: (data: IPromptData) => `
+  ${basePrompt(data)}
+  Today's word is "${
+    data.word
+  }". Prepare a sentence with that word and send it to ${data.userName}. Ask ${
+    data.userName
+  } if ${data.userName} understand it and if ${
+    data.userName
+  } wants to explanation or create their own sentence
   `,
 };

@@ -1,4 +1,4 @@
-export const setDataToDbFromJson = async (collectionName: string) => {
+export const createCollection = async (collectionName: string) => {
   try {
     // get collecions
     const collectionsResp = await fetch(

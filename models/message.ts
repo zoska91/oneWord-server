@@ -5,6 +5,10 @@ export interface IMistake {
   mistake: string;
   correction: string;
 }
+export interface INewWord {
+  id: string;
+  word: string;
+}
 
 export interface IMessage extends Document {
   human: string;
@@ -12,6 +16,8 @@ export interface IMessage extends Document {
   conversationId: string;
   created_at: Date;
   mistakes: IMistake[];
+  newWords: INewWord[];
+  userId: string;
 }
 
 const messageSchema = new mongoose.Schema({
@@ -20,6 +26,8 @@ const messageSchema = new mongoose.Schema({
   conversationId: { type: String, required: true },
   created_at: { type: Date, default: Date.now },
   mistakes: { type: Array },
+  words: { type: Array },
+  userId: { type: String, required: true },
 });
 
 export const MessageModel = mongoose.model<IMessage>('Message', messageSchema);

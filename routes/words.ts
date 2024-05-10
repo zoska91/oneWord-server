@@ -201,6 +201,7 @@ router.get('/today-word', async (req, res) => {
       userId,
       // addLang: languageToLearn, // TODO!!!
     });
+
     const words = allUserWords.filter(
       (word) => word.addLang === Number(languageToLearn)
     );

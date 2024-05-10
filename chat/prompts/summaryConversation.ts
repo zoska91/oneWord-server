@@ -17,7 +17,6 @@ These summaries should focus on key points such as ${userName}'s questions, new 
 - Create a summary that includes the main topic of the conversation, any new words or concepts discussed, and any specific user feedback (like or dislike).
 - Ensure the tone is neutral and the summary is concise, intended solely for archival purposes to aid in future personalized user interactions.
 - Avoid including assumed interests or topics not explicitly discussed in the conversation. 
-- It shouldn't have more than 3 sentence. 
 
 ### Context:
 messages: ${JSON.stringify(

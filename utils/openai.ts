@@ -29,7 +29,6 @@ export const getMistakeFromAi = async (
   languageToLearn: string,
   message: string
 ): Promise<IMistakeAiResp | null> => {
-  console.log('getMistakeFromAi', { languageToLearn, message });
   const resp = await client.chat.completions.create({
     model: 'gpt-3.5-turbo',
     functions: [isUserMistake(languageToLearn)],
@@ -52,6 +51,7 @@ export const getAnswerAi = async ({
   mistakes,
   newWords,
   userId,
+  isMistake,
 }: {
   messages: (SystemMessage | HumanMessage | AIMessage)[];
   isStreaming?: boolean;
@@ -61,19 +61,18 @@ export const getAnswerAi = async ({
   mistakes: IMistake[];
   newWords: INewWord[];
   userId: string;
+  isMistake: boolean;
 }) => {
   const modelSettings = {
     modelName: 'gpt-3.5-turbo',
     streaming: isStreaming ?? false,
     temperature: 0.7,
   };
-  // console.log({ messages, isStreaming, conversationId, query });
   const configuration = isStreaming
     ? {
         callbacks: [
           {
             handleLLMNewToken(token: string) {
-              console.log({ token });
               res.write(token);
             },
             handleLLMEnd: async (output: any) => {
@@ -93,7 +92,6 @@ export const getAnswerAi = async ({
 
   const chat = new ChatOpenAI(modelSettings);
   const { content } = await chat.invoke(messages, configuration);
-  console.log({ content });
   return {
     answer: typeof content === 'string' ? content : null,
   };
@@ -133,8 +131,6 @@ export const rerank = async (
     maxConcurrency: 15,
   });
 
-  console.log(documents);
-
   const checks: any = [];
   for (const document of documents) {
     checks.push({
@@ -159,11 +155,11 @@ export const rerank = async (
   }
 
   const results = await Promise.all(checks.map((check: any) => check.rank));
-  console.log({ results });
+
   const rankings = results.map((result, index) => {
     return { id: checks[index].id, score: result.content };
   });
-  console.log({ rankings });
+
   return documents.filter((document: any) =>
     rankings.find(
       (ranking) => ranking.id === document.id && ranking.score === '1'

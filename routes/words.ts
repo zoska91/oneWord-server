@@ -201,11 +201,9 @@ router.get('/today-word', async (req, res) => {
       userId,
       // addLang: languageToLearn, // TODO!!!
     });
-    console.log(allUserWords, typeof languageToLearn);
     const words = allUserWords.filter(
       (word) => word.addLang === Number(languageToLearn)
     );
-    console.log({ words });
 
     let todayWord =
       currentWord && isTheSameDates(currentWord.updatedDate)

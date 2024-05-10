@@ -58,11 +58,12 @@ router.post('/message', async (req, res) => {
   // is Mistake (initial call if without query - for sure no mistake)
   const mistakeResp =
     query !== '' ? await getMistakeFromAi(languageToLearn, query) : null;
+  const isMistake = mistakeResp && mistakeResp.isMistake === 1;
 
   let mistakes: IMistake[] = [];
   let newWords: INewWord[] = [];
 
-  if (mistakeResp && mistakeResp.isMistake === 1) {
+  if (isMistake) {
     currentPrompt = currentConversationPrompt.withMistake;
     mistakes = mistakeResp.mistakes?.map((mistake) => ({
       ...mistake,
@@ -93,6 +94,7 @@ router.post('/message', async (req, res) => {
     currentPrompt: currentPrompt(promptData),
   });
 
+  // console.log({ mistakes, messages, query, newWords });
   // ==== ANSWER + streaming =====
   const { answer } = await getAnswerAi({
     messages,
@@ -103,8 +105,8 @@ router.post('/message', async (req, res) => {
     mistakes,
     newWords,
     userId: user._id.toString(),
+    isMistake: Boolean(isMistake),
   });
-
   // ==== SAVE ANSWER if not streaming =====
   if (!isStreaming) {
     await saveMessage({
@@ -165,21 +167,4 @@ router.get('/api-key', async (req, res) => {
   res.json(process.env.OPENAI_API_KEY);
 });
 
-router.get('/is-ai', async (req, res) => {
-  const user = await getUser(req?.headers?.authorization);
-  if (user === 401 || !user) {
-    saveLog('error', 'GET', 'chat/is_ai', 'no logged user', { user });
-    res.redirect('/');
-    return;
-  }
-
-  const { isAi } = user;
-  if (!isAi) {
-    saveLog('error', 'GET', 'chat/is_ai', 'no AI', { user });
-    res.redirect('/');
-    return;
-  }
-
-  res.end();
-});
 export default router;

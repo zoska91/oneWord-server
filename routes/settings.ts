@@ -1,5 +1,4 @@
 import express from 'express';
-import jwt from 'jsonwebtoken';
 
 import { getUser } from '../utils/getUser';
 import { saveLog } from '../logger';

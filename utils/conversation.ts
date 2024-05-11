@@ -12,7 +12,7 @@ import { newConversationPrompt } from '../chat/prompts/newConversation';
 import { rerank } from './openai';
 import { saveMemory } from '../chat/qdrant/setData';
 import { MemoriesModel } from '../models/memories';
-import { searchMemories } from '../chat/qdrant/searchmemories';
+import { searchMemories } from '../chat/qdrant/searchMemories';
 
 export const getPrompt = (isNewConversation: boolean, isTodayWord: boolean) => {
   const currentPrompts = isNewConversation

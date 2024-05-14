@@ -36,6 +36,7 @@ export const getMemories = async (
       .sort({ created_at: -1 })
       .limit(3)
       .lean();
+
     return memories.map((mem) => mem.description).join('');
   }
 

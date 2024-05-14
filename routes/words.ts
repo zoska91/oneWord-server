@@ -226,4 +226,30 @@ router.get('/today-word', async (req, res) => {
   }
 });
 
+router.get('/learned-words', async (req, res) => {
+  try {
+    const user = await getUser(req?.headers?.authorization);
+
+    if (user === 401 || !user) {
+      saveLog('error', 'GET', 'last-words', 'no logged user', { user });
+      res.status(404).json({ message: 'no logged user' });
+      return;
+    }
+
+    const limit = req.query.limit;
+    const userId = user?._id;
+
+    const words = await WordModel.find({ userId, status: 2 })
+      .sort({ updatedDate: -1 })
+      .limit(Number(limit));
+
+    saveLog('info', 'GET', 'last-words', 'get word success', { userId });
+    res.json({ words });
+  } catch (e) {
+    console.log(e);
+    saveLog('warn', 'GET', 'last-words', 'system error', { error: e });
+    return res.status(500).json({ message: 'something went wrong' });
+  }
+});
+
 export default router;

@@ -14,7 +14,7 @@ import { saveMessage } from './conversation';
 import { currentDate } from './currentDate';
 import { IMessage, IMistake, INewWord } from '../models/message';
 import { summaryConversation } from '../chat/prompts/summaryConversation';
-import { IDocumentPayload } from '../chat/qdrant/searchmemories';
+import { IDocumentPayload } from '../chat/qdrant/searchMemories';
 
 interface IMistakeAiResp {
   isMistake: 1 | 0;

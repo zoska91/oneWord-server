@@ -100,7 +100,7 @@ export const saveMessage = async ({
     human: humanMessage || 'initial message',
     ai: aiMessage,
     mistakes,
-    words: newWords,
+    newWords,
     userId,
   });
   newMessage.save();

@@ -34,7 +34,7 @@ export const getShuffleWords = (words: IWord[], todayWord: IWord) => {
 };
 
 export const getRandomWord = async (
-  words: IWord[],
+  newWords: IWord[],
   currentWord: IWord | null
 ): Promise<IWord | null> => {
   if (currentWord) {
@@ -45,7 +45,7 @@ export const getRandomWord = async (
     );
   }
 
-  const wordsToLearn = words.filter((word) => word.status === 0);
+  const wordsToLearn = newWords.filter((word) => word.status === 0);
   const randomIndex = Math.floor(Math.random() * wordsToLearn.length);
   const todayWord = wordsToLearn?.[randomIndex];
 

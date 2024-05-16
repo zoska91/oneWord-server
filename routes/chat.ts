@@ -85,6 +85,7 @@ router.post('/message', async (req, res) => {
     aiName: user.aiName,
     word: todayWord,
     mistakes: mistakes?.map((mistake) => mistake.mistake).join('.'),
+    isStreaming,
   };
 
   // ==== MESSAGES =====
@@ -140,9 +141,11 @@ router.post('/finished-conversation', async (req, res) => {
   }
 
   let mistakes: IMistake[] = [];
+  let newWords: INewWord[] = [];
   const messages = await MessageModel.find({ conversationId }).lean();
   messages.forEach((message) => {
     mistakes = [...mistakes, ...message.mistakes];
+    newWords = [...newWords, ...message.newWords];
   });
 
   const summary = await getSummaryConversation({
@@ -152,7 +155,7 @@ router.post('/finished-conversation', async (req, res) => {
   });
 
   await saveSummary(summary, user._id.toString(), conversationId);
-  res.json({ mistakes });
+  res.json({ mistakes, newWords });
 });
 
 router.get('/api-key', async (req, res) => {

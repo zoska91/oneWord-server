@@ -26,7 +26,7 @@ const messageSchema = new mongoose.Schema({
   conversationId: { type: String, required: true },
   created_at: { type: Date, default: Date.now },
   mistakes: { type: Array },
-  words: { type: Array },
+  newWords: { type: Array },
   userId: { type: String, required: true },
 });
 

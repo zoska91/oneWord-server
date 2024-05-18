@@ -4,10 +4,12 @@ export interface IMistake {
   id: string;
   mistake: string;
   correction: string;
+  inBaseLang: string;
 }
 export interface INewWord {
   id: string;
-  word: string;
+  newWord: string;
+  inBaseLang: string;
 }
 
 export interface IMessage extends Document {

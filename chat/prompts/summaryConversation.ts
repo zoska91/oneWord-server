@@ -35,7 +35,7 @@ mistakes: ${JSON.stringify(
 new words: ${JSON.stringify(
   messages.map((message) => {
     const data: string[] = [];
-    message.newWords?.forEach((newWord) => data.push(newWord.word));
+    message.newWords?.forEach((newWord) => data.push(newWord.newWord));
     return data;
   })
 )}

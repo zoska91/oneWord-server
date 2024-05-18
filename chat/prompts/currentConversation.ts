@@ -9,6 +9,7 @@ export interface IPromptData {
   word?: string;
   mistakes: string;
   isStreaming?: boolean;
+  baseLanguage: string;
 }
 
 export const currentConversationPrompt = {

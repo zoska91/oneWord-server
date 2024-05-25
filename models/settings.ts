@@ -1,4 +1,5 @@
 import mongoose, { Types } from 'mongoose';
+import { AvailableLanguages } from '../enums/languages';
 
 export interface INotification extends Document {
   time: string;
@@ -33,10 +34,11 @@ const SettingsSchema = new mongoose.Schema({
     default: [
       { time: '12:42', type: '1' },
       { time: '14:42', type: '2' },
-      { time: '12:42', type: '3' },
+      { time: '16:42', type: '3' },
     ],
   },
-  languageToLearn: { type: Number, default: 7 },
+  languageToLearn: { type: Number, default: AvailableLanguages.en },
+  baseLanguage: { type: Number, default: AvailableLanguages.pl },
   summaryDay: { type: Number, default: 1 },
 });
 

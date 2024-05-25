@@ -52,6 +52,7 @@ router.post('/login', async (req, res) => {
           message: 'Login Successful',
           token,
           isAi: data.isAi,
+          id: data._id,
         });
       } else {
         saveLog('warn', 'POST', 'auth/login', 'wrong password', {

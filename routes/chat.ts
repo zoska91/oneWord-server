@@ -20,17 +20,18 @@ import {
   currentConversationPrompt,
 } from '../chat/prompts/currentConversation';
 import { IMistake, INewWord, MessageModel } from '../models/message';
+import { getMistake, getNewWords } from '../utils/ai';
 
 const router = express.Router();
 
 router.post('/message', async (req, res) => {
-  const user = await getUser(req?.headers?.authorization);
+  // const user = await getUser(req?.headers?.authorization);
 
-  if (user === 401 || !user || !user.isAi) {
-    saveLog('error', 'POST', 'chat/message', 'no logged user', { user });
-    res.status(404).json({ message: 'no logged user' });
-    return;
-  }
+  // if (user === 401 || !user || !user.isAi) {
+  //   saveLog('error', 'POST', 'chat/message', 'no logged user', { user });
+  //   res.status(404).json({ message: 'no logged user' });
+  //   return;
+  // }
 
   const {
     query,
@@ -41,89 +42,93 @@ router.post('/message', async (req, res) => {
     currentConversationId,
   } = req.body;
 
-  const isNewConversation = !Boolean(currentConversationId);
-  const conversationId = currentConversationId || v4();
-  res.setHeader('x-conversation-id', conversationId);
+  // const isNewConversation = !Boolean(currentConversationId);
+  // const conversationId = currentConversationId || v4();
+  // res.setHeader('x-conversation-id', conversationId);
 
-  // ==== MEMORIES =====
-  const memories = await getMemories(
-    user._id.toString(),
-    query,
-    isNewConversation
-  );
+  // // ==== MEMORIES =====
+  // const memories = await getMemories(
+  //   user._id.toString(),
+  //   query,
+  //   isNewConversation
+  // );
 
-  // ====== PROMPT =====
-  let currentPrompt = getPrompt(Boolean(isNewConversation), Boolean(todayWord));
+  // // ====== PROMPT =====
+  // let currentPrompt = getPrompt(Boolean(isNewConversation), Boolean(todayWord));
 
-  // ====== MISTAKES =====
-  // is Mistake (initial call if without query - for sure no mistake)
-  const mistakeResp =
-    query !== ''
-      ? await getMistakeFromAi({ languageToLearn, query, baseLanguage })
-      : null;
-  const isMistake = mistakeResp && mistakeResp.isMistake === 1;
+  // // ====== MISTAKES =====
+  // // is Mistake (initial call if without query - for sure no mistake)
+  // const mistakeResp =
+  //   query !== ''
+  //     ? await getMistakeFromAi({ languageToLearn, query, baseLanguage })
+  //     : null;
+  // const isMistake = mistakeResp && mistakeResp.isMistake === 1;
 
-  let mistakes: IMistake[] = [];
-  let newWords: INewWord[] = [];
+  // let mistakes: IMistake[] = [];
+  // let newWords: INewWord[] = [];
 
-  if (isMistake) {
-    currentPrompt = currentConversationPrompt.withMistake;
-    mistakes = mistakeResp.mistakes?.map((mistake) => ({
-      ...mistake,
-      id: v4(),
-    }));
-  }
+  // if (isMistake) {
+  //   currentPrompt = currentConversationPrompt.withMistake;
+  //   mistakes = mistakeResp.mistakes?.map((mistake) => ({
+  //     ...mistake,
+  //     id: v4(),
+  //   }));
+  // }
 
-  if (mistakeResp && mistakeResp.isNewWord === 1) {
-    newWords = mistakeResp.newWords?.map((newWord) => ({
-      ...newWord,
-      id: v4(),
-    }));
-  }
+  // if (mistakeResp && mistakeResp.isNewWord === 1) {
+  //   newWords = mistakeResp.newWords?.map((newWord) => ({
+  //     ...newWord,
+  //     id: v4(),
+  //   }));
+  // }
 
-  const promptData: IPromptData = {
-    languageToLearn,
-    baseLanguage,
-    memories,
-    userName: user.name,
-    aiName: user.aiName,
-    word: todayWord,
-    mistakes: mistakes?.map((mistake) => mistake.mistake).join('.'),
-    isStreaming,
-  };
+  // const promptData: IPromptData = {
+  //   languageToLearn,
+  //   baseLanguage,
+  //   memories,
+  //   userName: user.name,
+  //   aiName: user.aiName,
+  //   word: todayWord,
+  //   mistakes: mistakes?.map((mistake) => mistake.mistake).join('.'),
+  //   isStreaming,
+  // };
 
-  // ==== MESSAGES =====
-  const messages = await getMessages({
-    query,
-    conversationId,
-    currentPrompt: currentPrompt(promptData),
-  });
+  // // ==== MESSAGES =====
+  // const messages = await getMessages({
+  //   query,
+  //   conversationId,
+  //   currentPrompt: currentPrompt(promptData),
+  // });
 
-  // console.log({ mistakes, messages, query, newWords });
-  // ==== ANSWER + streaming =====
-  const { answer } = await getAnswerAi({
-    messages,
-    isStreaming,
-    res,
-    conversationId,
-    query,
-    mistakes,
-    newWords,
-    userId: user._id.toString(),
-    isMistake: Boolean(isMistake),
-  });
-  // ==== SAVE ANSWER if not streaming =====
-  if (!isStreaming) {
-    await saveMessage({
-      conversationId,
-      humanMessage: query,
-      aiMessage: answer ?? 'No answer.',
-      mistakes,
-      newWords,
-      userId: user._id.toString(),
-    });
-    return res.json({ answer, conversationId });
-  } else res.end();
+  // // console.log({ mistakes, messages, query, newWords });
+  // // ==== ANSWER + streaming =====
+  // const { answer } = await getAnswerAi({
+  //   messages,
+  //   isStreaming,
+  //   res,
+  //   conversationId,
+  //   query,
+  //   mistakes,
+  //   newWords,
+  //   userId: user._id.toString(),
+  //   isMistake: Boolean(isMistake),
+  // });
+  // // ==== SAVE ANSWER if not streaming =====
+  // if (!isStreaming) {
+  //   await saveMessage({
+  //     conversationId,
+  //     humanMessage: query,
+  //     aiMessage: answer ?? 'No answer.',
+  //     mistakes,
+  //     newWords,
+  //     userId: user._id.toString(),
+  //   });
+  //   return res.json({ answer, conversationId });
+  // }
+  getMistake(query, languageToLearn);
+  getNewWords(query, baseLanguage, languageToLearn);
+  // else
+  res.end();
 });
 
 router.post('/finished-conversation', async (req, res) => {

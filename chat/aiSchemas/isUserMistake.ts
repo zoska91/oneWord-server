@@ -1,14 +1,14 @@
 const schemas = (languageToLearn: string, baseLanguage: string) => ({
   name: 'describe_is_user_mistake',
-  description: `You are english teacher. Use the provided functions to decide if in message is mistake. User is learning new language: ${languageToLearn} and might do mistakes. Recognise if user made Grammatical mistake or syntactic error or constituent error in message`,
+  description: `You are english teacher. Use the provided functions to decide if in message is mistake (Only grammar mistake count) or is a new word/fraze for user. User is learning new language: ${languageToLearn} and might do mistakes`,
   parameters: {
     type: 'object',
     properties: {
       isMistake: {
         type: 'number',
         description: `Type has to be set to either 1 or 0: 
-          1 for mistake, when you found a Grammatical mistake or syntactic error or constituent error in the user's message; 
-          0 for correct, when the user's message is correct.`,
+          1 for mistake, when you found a grammar  mistake in message; 
+          0 for correct, when the message is correct.`,
       },
       isNewWord: {
         type: 'number',

@@ -35,6 +35,7 @@ router.post('/message', async (req, res) => {
   const {
     query,
     languageToLearn,
+    baseLanguage,
     isStreaming,
     todayWord,
     currentConversationId,
@@ -57,7 +58,9 @@ router.post('/message', async (req, res) => {
   // ====== MISTAKES =====
   // is Mistake (initial call if without query - for sure no mistake)
   const mistakeResp =
-    query !== '' ? await getMistakeFromAi(languageToLearn, query) : null;
+    query !== ''
+      ? await getMistakeFromAi({ languageToLearn, query, baseLanguage })
+      : null;
   const isMistake = mistakeResp && mistakeResp.isMistake === 1;
 
   let mistakes: IMistake[] = [];
@@ -80,6 +83,7 @@ router.post('/message', async (req, res) => {
 
   const promptData: IPromptData = {
     languageToLearn,
+    baseLanguage,
     memories,
     userName: user.name,
     aiName: user.aiName,

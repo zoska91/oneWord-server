@@ -19,20 +19,25 @@ import { IDocumentPayload } from '../chat/qdrant/searchMemories';
 interface IMistakeAiResp {
   isMistake: 1 | 0;
   isNewWord: 1 | 0;
-  mistakes: { mistake: string; correction: string }[];
-  newWords: { word: string }[];
+  mistakes: { mistake: string; correction: string; inBaseLang: string }[];
+  newWords: { newWord: string; inBaseLang: string }[];
 }
 
 const client = new OpenAI();
 
-export const getMistakeFromAi = async (
-  languageToLearn: string,
-  message: string
-): Promise<IMistakeAiResp | null> => {
+export const getMistakeFromAi = async ({
+  languageToLearn,
+  baseLanguage,
+  query,
+}: {
+  languageToLearn: string;
+  baseLanguage: string;
+  query: string;
+}): Promise<IMistakeAiResp | null> => {
   const resp = await client.chat.completions.create({
     model: 'gpt-3.5-turbo',
-    functions: [isUserMistake(languageToLearn)],
-    messages: [{ role: 'user', content: message }],
+    functions: [isUserMistake(languageToLearn, baseLanguage)],
+    messages: [{ role: 'user', content: query }],
     function_call: 'auto',
   });
 

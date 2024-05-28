@@ -7,6 +7,7 @@ export interface ISubscription extends Document {
     p256dh: string;
     auth: string;
   };
+  createdDate: string;
 }
 
 const SubscriptionSchema = new mongoose.Schema({
@@ -19,6 +20,7 @@ const SubscriptionSchema = new mongoose.Schema({
     p256dh: String,
     auth: String,
   },
+  createdDate: { type: Date, default: new Date() },
 });
 
 export const SubscriptionModel = mongoose.model<ISubscription>(

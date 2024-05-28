@@ -69,8 +69,6 @@ export const scheduleNotification = async (userId: string) => {
     } catch (error) {
       console.error('Failed to save subscription:', error);
     }
-
-    console.log(99999, cron.getTasks());
   });
 };
 

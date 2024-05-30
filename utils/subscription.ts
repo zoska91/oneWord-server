@@ -97,5 +97,5 @@ export const runCron = async () => {
     });
   });
 
-  console.log('cron running');
+  console.log('cron running !!');
 };

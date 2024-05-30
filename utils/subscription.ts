@@ -12,7 +12,6 @@ webpush.setVapidDetails(
 );
 
 const setNotification = async (userId: string) => {
-  console.log('test');
   const notificationPayload = JSON.stringify({
     title: `It's time! Just one more word to learn!`,
     body: 'one small step...',
@@ -57,7 +56,10 @@ export const scheduleNotification = async (userId: string) => {
     const userCron = new CronModel({
       cronId,
       userId,
+      time,
     });
+
+    console.log(9, userCron);
 
     try {
       await userCron.save();
@@ -76,4 +78,24 @@ export const removeNotification = async (userId: string) => {
   });
 
   await CronModel.deleteMany({ userId });
+};
+
+export const runCron = async () => {
+  const notifications = await CronModel.find().lean();
+
+  if (notifications?.length < 0) return;
+
+  notifications.forEach(async (notification) => {
+    if (!notification?.time) return;
+
+    const [hh, mm] = notification.time.split(':');
+    const cronExpression = `${mm} ${hh} * * *`;
+    cron.schedule(cronExpression, () => setNotification(notification.userId), {
+      name: notification.cronId,
+      scheduled: true,
+      timezone: 'Europe/Warsaw',
+    });
+  });
+
+  console.log('cron running');
 };

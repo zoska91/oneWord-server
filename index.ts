@@ -15,6 +15,7 @@ import settingRoute from './routes/settings';
 import wordsRoute from './routes/words';
 import chatRoute from './routes/chat';
 import subscriptionRoute from './routes/subscription';
+import { runCron } from './utils/subscription';
 
 dbConnect().catch((err) => console.log(err));
 
@@ -64,4 +65,6 @@ app.use('/api/subscription', subscriptionRoute);
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
+
+  runCron();
 });

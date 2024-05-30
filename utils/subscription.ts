@@ -1,7 +1,8 @@
 import cron from 'node-cron';
-import { SubscriptionModel } from '../models/subscription';
 import webpush from 'web-push';
-import { INotification, ISettings, SettingsModel } from '../models/settings';
+
+import { SubscriptionModel } from '../models/subscription';
+import { SettingsModel } from '../models/settings';
 import { CronModel } from '../models/cron';
 
 webpush.setVapidDetails(
@@ -11,7 +12,6 @@ webpush.setVapidDetails(
 );
 
 const setNotification = async (userId: string) => {
-  console.log(6, { userId });
   const notificationPayload = JSON.stringify({
     title: `It's time! Just one more word to learn!`,
     body: 'one small step...',
@@ -22,12 +22,9 @@ const setNotification = async (userId: string) => {
       userId,
     });
 
-    console.log(7, { subscriptions });
-
     const promises = subscriptions.map((sub) => {
       webpush.sendNotification(sub.toJSON(), notificationPayload);
     });
-    console.log(8, { promises });
 
     await Promise.all(promises);
   } catch (error) {
@@ -36,21 +33,19 @@ const setNotification = async (userId: string) => {
 };
 
 export const scheduleNotification = async (userId: string) => {
-  console.log(1, { userId });
+  await removeNotification(userId);
+
   const userSettings = await SettingsModel.findOne({ userId }).lean();
-  console.log(2, { userSettings });
+
   if (!userSettings) return;
   const times = userSettings.notifications.map(
     (notification) => notification.time
   );
-  console.log(3, { times });
 
   times.forEach(async (time) => {
     const [hh, mm] = time.split(':');
     const cronExpression = `${mm} ${hh} * * *`;
     const cronId = `${userId}-${time}`;
-
-    console.log(4, { hh, mm, cronExpression, cronId });
 
     cron.schedule(cronExpression, () => setNotification(userId), {
       name: cronId,
@@ -63,7 +58,6 @@ export const scheduleNotification = async (userId: string) => {
       userId,
     });
 
-    console.log(5, userCron);
     try {
       await userCron.save();
     } catch (error) {
@@ -73,11 +67,10 @@ export const scheduleNotification = async (userId: string) => {
 };
 
 export const removeNotification = async (userId: string) => {
-  const userCrons = await CronModel.find({ userId });
-  const userCronsIds = userCrons.map((userCron) => userCron.cronId);
+  await CronModel.find({ userId });
 
   Array.from(cron.getTasks()).filter(([name, task]) => {
-    if (!userCronsIds.includes(name)) return;
+    if (!name.includes(userId)) return;
     task.stop();
   });
 

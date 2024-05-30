@@ -12,6 +12,7 @@ webpush.setVapidDetails(
 );
 
 const setNotification = async (userId: string) => {
+  console.log('test');
   const notificationPayload = JSON.stringify({
     title: `It's time! Just one more word to learn!`,
     body: 'one small step...',

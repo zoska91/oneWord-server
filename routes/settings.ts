@@ -3,6 +3,7 @@ import express from 'express';
 import { getUser } from '../utils/getUser';
 import { saveLog } from '../logger';
 import { SettingsModel } from '../models/settings';
+import { scheduleNotification } from '../utils/subscription';
 
 const router = express.Router();
 
@@ -37,9 +38,10 @@ router.put('/user-settings', async (req, res) => {
       return;
     }
 
-    const userId = user?._id;
+    const userId = user?._id.toString();
 
     await SettingsModel.findOneAndUpdate({ userId }, req.body);
+    scheduleNotification(userId);
 
     saveLog(
       'info',

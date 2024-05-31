@@ -11,9 +11,10 @@ export interface ISettings extends Document {
   breakDay: number;
   isBreak: boolean;
   isSummary: boolean;
-  notifications: Notification[];
+  notifications: INotification[];
   languageToLearn: number;
   summaryDay: number;
+  baseLanguage: number;
 }
 
 const NotificationSchema = new mongoose.Schema({

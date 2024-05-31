@@ -14,6 +14,8 @@ import authRouter from './routes/auth';
 import settingRoute from './routes/settings';
 import wordsRoute from './routes/words';
 import chatRoute from './routes/chat';
+import subscriptionRoute from './routes/subscription';
+import { runCron } from './utils/subscription';
 
 dbConnect().catch((err) => console.log(err));
 
@@ -59,7 +61,10 @@ app.use('/api/auth', authRouter);
 app.use('/api/settings', settingRoute);
 app.use('/api/words', wordsRoute);
 app.use('/api/chat', chatRoute);
+app.use('/api/subscription', subscriptionRoute);
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
+
+  runCron();
 });

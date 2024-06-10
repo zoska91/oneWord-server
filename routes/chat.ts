@@ -7,19 +7,17 @@ import {
   getMemories,
   getMessages,
   getPrompt,
-  saveMessage,
   saveSummary,
+  sendMessageToAi,
 } from '../utils/conversation';
-import {
-  getAnswerAi,
-  getMistakeFromAi,
-  getSummaryConversation,
-} from '../utils/openai';
-import {
-  IPromptData,
-  currentConversationPrompt,
-} from '../chat/prompts/currentConversation';
+
 import { IMistake, INewWord, MessageModel } from '../models/message';
+import {
+  getCorrectQuery,
+  getMistake,
+  getNewWords,
+  getSummaryConversation,
+} from '../utils/ai';
 
 const router = express.Router();
 
@@ -45,85 +43,46 @@ router.post('/message', async (req, res) => {
   const conversationId = currentConversationId || v4();
   res.setHeader('x-conversation-id', conversationId);
 
-  // ==== MEMORIES =====
-  const memories = await getMemories(
-    user._id.toString(),
+  const memories = await getMemories({
+    userId: user._id.toString(),
     query,
-    isNewConversation
-  );
-
-  // ====== PROMPT =====
-  let currentPrompt = getPrompt(Boolean(isNewConversation), Boolean(todayWord));
-
-  // ====== MISTAKES =====
-  // is Mistake (initial call if without query - for sure no mistake)
-  const mistakeResp =
-    query !== ''
-      ? await getMistakeFromAi({ languageToLearn, query, baseLanguage })
-      : null;
-  const isMistake = mistakeResp && mistakeResp.isMistake === 1;
-
-  let mistakes: IMistake[] = [];
-  let newWords: INewWord[] = [];
-
-  if (isMistake) {
-    currentPrompt = currentConversationPrompt.withMistake;
-    mistakes = mistakeResp.mistakes?.map((mistake) => ({
-      ...mistake,
-      id: v4(),
-    }));
-  }
-
-  if (mistakeResp && mistakeResp.isNewWord === 1) {
-    newWords = mistakeResp.newWords?.map((newWord) => ({
-      ...newWord,
-      id: v4(),
-    }));
-  }
-
-  const promptData: IPromptData = {
+    isNewConversation,
     languageToLearn,
-    baseLanguage,
-    memories,
-    userName: user.name,
-    aiName: user.aiName,
-    word: todayWord,
-    mistakes: mistakes?.map((mistake) => mistake.mistake).join('.'),
-    isStreaming,
-  };
-
-  // ==== MESSAGES =====
-  const messages = await getMessages({
-    query,
-    conversationId,
-    currentPrompt: currentPrompt(promptData),
   });
 
-  // console.log({ mistakes, messages, query, newWords });
-  // ==== ANSWER + streaming =====
-  const { answer } = await getAnswerAi({
-    messages,
-    isStreaming,
-    res,
+  const mistakes = isNewConversation
+    ? []
+    : await getMistake(query, languageToLearn);
+  const newWords = isNewConversation
+    ? []
+    : await getNewWords(query, baseLanguage, languageToLearn);
+
+  const correctQuery = await getCorrectQuery(query, languageToLearn);
+  const currentPrompt = getPrompt(isNewConversation, {
+    aiName: user.aiName,
+    userName: user.name,
+    languageToLearn,
+    memories,
+    mistakes: mistakes.map((mistake) => mistake.mistake).join(', '),
+    todayWord,
+  });
+
+  const messages = await getMessages({
+    query: correctQuery,
     conversationId,
+    currentPrompt,
+  });
+
+  await sendMessageToAi({
     query,
+    messages,
     mistakes,
+    isStreaming,
+    conversationId,
+    res,
     newWords,
     userId: user._id.toString(),
-    isMistake: Boolean(isMistake),
   });
-  // ==== SAVE ANSWER if not streaming =====
-  if (!isStreaming) {
-    await saveMessage({
-      conversationId,
-      humanMessage: query,
-      aiMessage: answer ?? 'No answer.',
-      mistakes,
-      newWords,
-      userId: user._id.toString(),
-    });
-    return res.json({ answer, conversationId });
-  } else res.end();
 });
 
 router.post('/finished-conversation', async (req, res) => {
@@ -146,6 +105,7 @@ router.post('/finished-conversation', async (req, res) => {
 
   let mistakes: IMistake[] = [];
   let newWords: INewWord[] = [];
+
   const messages = await MessageModel.find({ conversationId }).lean();
   messages.forEach((message) => {
     mistakes = [...mistakes, ...message.mistakes];

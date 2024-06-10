@@ -5,32 +5,30 @@ import {
 } from '@langchain/core/messages';
 import { v4 } from 'uuid';
 
-import { saveLog } from '../logger';
-import { IMistake, INewWord, MessageModel } from '../models/message';
-import { currentConversationPrompt } from '../chat/prompts/currentConversation';
-import { newConversationPrompt } from '../chat/prompts/newConversation';
-import { rerank } from './openai';
+import { MessageModel } from '../models/message';
 import { saveMemory } from '../chat/qdrant/setData';
 import { MemoriesModel } from '../models/memories';
 import { searchMemories } from '../chat/qdrant/searchMemories';
+import { getAiAnswer, getStandaloneQuestionForMemories, rerank } from './ai';
+import { IPromptParams, ISaveMessage, ISendMessageToAi } from '../chat/types';
+import {
+  answerTemplate,
+  answerWithWordTemplate,
+  beginTemplate,
+  beginWithWordTemplate,
+} from '../chat/promptTemplates';
 
-export const getPrompt = (isNewConversation: boolean, isTodayWord: boolean) => {
-  const currentPrompts = isNewConversation
-    ? newConversationPrompt
-    : currentConversationPrompt;
-
-  let currentPrompt = isTodayWord
-    ? currentPrompts.withWord
-    : currentPrompts.noWord;
-
-  return currentPrompt;
-};
-
-export const getMemories = async (
-  userId: string,
-  query: string,
-  isNewConversation: boolean
-) => {
+export const getMemories = async ({
+  userId,
+  query,
+  isNewConversation,
+  languageToLearn,
+}: {
+  userId: string;
+  query: string;
+  isNewConversation: boolean;
+  languageToLearn: string;
+}) => {
   if (isNewConversation) {
     const memories = await MemoriesModel.find({ userId })
       .sort({ created_at: -1 })
@@ -41,11 +39,13 @@ export const getMemories = async (
   }
 
   const collectionName = `oneWord-${userId}`;
-  const documents = await searchMemories(collectionName, query);
-  if (documents.length === 0) return '';
+  const standaloneQuestion = await getStandaloneQuestionForMemories(
+    query,
+    languageToLearn
+  );
+  const documents = await searchMemories(collectionName, standaloneQuestion);
 
   const memories = await rerank(query, documents);
-
   return memories.map((mem) => mem.content).join('');
 };
 
@@ -80,6 +80,25 @@ export const getMessages = async ({
   return messages;
 };
 
+export const getPrompt = (
+  isNewConversation: boolean,
+  promptParams: IPromptParams
+) => {
+  const isTodayWord = Boolean(promptParams.todayWord);
+
+  let prompt = '';
+
+  if (isNewConversation && !isTodayWord) prompt = beginTemplate(promptParams);
+  if (!isNewConversation && !isTodayWord) prompt = answerTemplate(promptParams);
+
+  if (isNewConversation && isTodayWord)
+    prompt = beginWithWordTemplate(promptParams);
+  if (!isNewConversation && isTodayWord)
+    prompt = answerWithWordTemplate(promptParams);
+
+  return prompt;
+};
+
 export const saveMessage = async ({
   conversationId,
   humanMessage,
@@ -87,14 +106,7 @@ export const saveMessage = async ({
   mistakes,
   newWords,
   userId,
-}: {
-  conversationId: string;
-  humanMessage: string;
-  aiMessage: string;
-  mistakes: IMistake[];
-  newWords: INewWord[];
-  userId: string;
-}) => {
+}: ISaveMessage) => {
   const newMessage = new MessageModel({
     conversationId,
     human: humanMessage || 'initial message',
@@ -103,7 +115,29 @@ export const saveMessage = async ({
     newWords,
     userId,
   });
+
   newMessage.save();
+};
+
+export const sendMessageToAi = async ({
+  messages,
+  isStreaming,
+  conversationId,
+  res,
+  query,
+  mistakes,
+  newWords,
+  userId,
+}: ISendMessageToAi) => {
+  const dataToSave = {
+    conversationId,
+    humanMessage: query,
+    mistakes,
+    newWords,
+    userId,
+  };
+
+  await getAiAnswer({ res, messages, isStreaming, saveMessage, dataToSave });
 };
 
 export const saveSummary = async (
@@ -127,5 +161,6 @@ export const saveSummary = async (
     description: summary,
     userId,
   });
+
   newMessage.save();
 };

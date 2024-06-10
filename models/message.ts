@@ -4,7 +4,6 @@ export interface IMistake {
   id: string;
   mistake: string;
   correction: string;
-  inBaseLang: string;
 }
 export interface INewWord {
   id: string;

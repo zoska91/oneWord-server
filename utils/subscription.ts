@@ -59,8 +59,6 @@ export const scheduleNotification = async (userId: string) => {
       time,
     });
 
-    console.log(9, userCron);
-
     try {
       await userCron.save();
     } catch (error) {

@@ -4,6 +4,13 @@ export const punctuationTemplate = `
   sentence with punctuation:
 `;
 
+export const correctMessageTemplate = `
+  Given a sentence add punctuation where needed and correct the grammar.
+  Sentence is in {languageToLearn} language.
+  sentence: {query}
+  sentence with correct grammar: 
+`;
+
 export const grammarTemplate = `Given a message check if it is grammar correct.
   Message is in {languageToLearn} language.
   message: {punctuated_message}
@@ -18,8 +25,8 @@ export const grammarTemplate = `Given a message check if it is grammar correct.
   ###
   [
     {{
-      mistake: "I am from about Poland",
-      correction: "I am from Poland
+      "mistake": "I am from about Poland",
+      "correction": "I am from Poland
     }}
   ]
 
@@ -28,18 +35,32 @@ export const grammarTemplate = `Given a message check if it is grammar correct.
   ###
   [
     {{
-      mistake: "wandering",
-      correction: "wondering"
+      "mistake": "wandering",
+      "correction": "wondering"
+    }}
+  ]
+
+  3. I'd like to disscouse today about music..
+
+  ###
+  [
+    {{
+      "mistake": "I'd like to disscouse today about music.",
+      "correction": "I'd like to discuss music today."
+    }},
+    {{
+      "mistake": "disscouse",
+      "correction": "discuss"
     }}
   ]
 
   examples without mistakes:
-  3. I am from Poland 
+  4. I am from Poland 
 
   ###
   []
 
-  4. I'm gonna do it.
+  5. I'm gonna do it.
 
   ###
   []

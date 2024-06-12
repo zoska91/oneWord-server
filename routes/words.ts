@@ -13,6 +13,12 @@ import {
 import { saveLog } from '../logger';
 import { getUser } from '../utils/getUser';
 
+type FiltersType = {
+  userId: string;
+  status: number;
+  createdDate?: { $gte: Date };
+};
+
 const router = express.Router();
 
 router.get('/all', async (req, res) => {
@@ -236,10 +242,20 @@ router.get('/learned-words', async (req, res) => {
       return;
     }
 
-    const limit = req.query.limit;
-    const userId = user?._id;
+    const { limit, days } = req.query;
+    const userId = user?._id.toString();
 
-    const words = await WordModel.find({ userId, status: 2 })
+    const filters: FiltersType = {
+      userId,
+      status: 2,
+    };
+
+    if (days) {
+      const limitDay = new Date();
+      limitDay.setDate(limitDay.getDate() - Number(days));
+      filters.createdDate = { $gte: limitDay };
+    }
+    const words = await WordModel.find({ filters })
       .sort({ updatedDate: -1 })
       .limit(Number(limit));
 

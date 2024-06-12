@@ -13,6 +13,7 @@ import { getAiAnswer, getStandaloneQuestionForMemories, rerank } from './ai';
 import { IPromptParams, ISaveMessage, ISendMessageToAi } from '../chat/types';
 import {
   answerTemplate,
+  answerWithMistakeTemplate,
   answerWithWordTemplate,
   beginTemplate,
   beginWithWordTemplate,
@@ -84,19 +85,35 @@ export const getPrompt = (
   isNewConversation: boolean,
   promptParams: IPromptParams
 ) => {
+  console.log(6, promptParams);
   const isTodayWord = Boolean(promptParams.todayWord);
+  const mistakesString =
+    typeof promptParams.mistakes === 'string'
+      ? promptParams.mistakes
+      : JSON.stringify(promptParams.mistakes);
 
-  let prompt = '';
+  const newPromptParams = {
+    ...promptParams,
+    mistakes: mistakesString,
+  };
 
-  if (isNewConversation && !isTodayWord) prompt = beginTemplate(promptParams);
-  if (!isNewConversation && !isTodayWord) prompt = answerTemplate(promptParams);
+  if (
+    promptParams.mistakes &&
+    Array.isArray(promptParams.mistakes) &&
+    promptParams.mistakes.length > 0
+  )
+    return answerWithMistakeTemplate(newPromptParams);
+
+  if (isNewConversation && !isTodayWord) return beginTemplate(newPromptParams);
+  if (!isNewConversation && !isTodayWord)
+    return answerTemplate(newPromptParams);
 
   if (isNewConversation && isTodayWord)
-    prompt = beginWithWordTemplate(promptParams);
+    return beginWithWordTemplate(newPromptParams);
   if (!isNewConversation && isTodayWord)
-    prompt = answerWithWordTemplate(promptParams);
+    return answerWithWordTemplate(newPromptParams);
 
-  return prompt;
+  return '';
 };
 
 export const saveMessage = async ({

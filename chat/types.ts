@@ -12,7 +12,7 @@ export interface IPromptParams {
   userName: string;
   languageToLearn: string;
   memories: string;
-  mistakes: string;
+  mistakes: string | IMistake[];
   todayWord?: string;
 }
 

@@ -56,14 +56,16 @@ router.post('/message', async (req, res) => {
   const newWords = isNewConversation
     ? []
     : await getNewWords(query, baseLanguage, languageToLearn);
+  const correctQuery = isNewConversation
+    ? ''
+    : await getCorrectQuery(query, languageToLearn);
 
-  const correctQuery = await getCorrectQuery(query, languageToLearn);
   const currentPrompt = getPrompt(isNewConversation, {
     aiName: user.aiName,
     userName: user.name,
     languageToLearn,
     memories,
-    mistakes: mistakes.map((mistake) => mistake.mistake).join(', '),
+    mistakes,
     todayWord,
   });
 

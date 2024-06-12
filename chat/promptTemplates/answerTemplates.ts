@@ -29,7 +29,7 @@ export const beginWithWordTemplate = ({
   userName,
   todayWord,
 }: IPromptParams) => `
-  Now I'm starting a new conversation. I should say hello to ${userName} and tell ${userName} sentence, that could include ${todayWord}, but it won't. Then I'll ask ${userName} to replace a word in the sentence with ${todayWord} - but I WON'T tell this word - and tell whole sentence. 
+  The word that ${userName} wants to learn today is: ${todayWord}. To help with this, I will create a sentence that includes ${todayWord}, but I will replace it with a synonym. I will do this in my mind, then greet ${userName} and send the sentence with the synonym along with a request for ${userName} to replace the appropriate word in the sentence using ${todayWord}. I cannot send ${todayWord} in my message.
 `;
 
 export const answerWithWordTemplate = ({

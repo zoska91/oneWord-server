@@ -18,6 +18,7 @@ export const grammarTemplate = `Given a message check if it is grammar correct.
   if in message there mistake return them as array in json. 
   
   Ignore colloquial expressions, common abbreviations, and everyday informal language used in English. Do not flag these as mistakes.
+  IT IS THE MOST IMPORTANT: RESPONSE MUST BE ARRAY OF OBJECT {{"mistake": string, "correction": string}}
 
   examples with mistakes:: 
   1. I am from about Poland.

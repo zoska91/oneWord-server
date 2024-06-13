@@ -9,6 +9,8 @@ import {
 import { SubscriptionModel } from '../models/subscription';
 import { getUser } from '../utils/getUser';
 import { saveLog } from '../logger';
+import { subscribeSchema } from '../validation/subscription';
+import { validate } from '../validation';
 
 const router = express.Router();
 
@@ -32,7 +34,7 @@ router.get('/vapidPublicKey', async (req, res) => {
   res.json(process.env.VAPID_PUBLIC_KEY);
 });
 
-router.post('/subscribe', async (req, res) => {
+router.post('/subscribe', validate(subscribeSchema), async (req, res) => {
   const user = await getUser(req?.headers?.authorization);
 
   if (user === 401 || !user) {

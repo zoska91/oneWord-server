@@ -7,6 +7,8 @@ import config from '../config';
 import { SettingsModel } from '../models/settings';
 import { saveLog } from '../logger';
 import { getUser } from '../utils/getUser';
+import { validate } from '../validation';
+import { loginSchema, registerSchema } from '../validation/auth';
 
 const router = express.Router();
 
@@ -24,7 +26,7 @@ router.get('/user', async (req, res) => {
   res.json({ username, id: _id, isAi });
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', validate(loginSchema), async (req, res) => {
   const username = req.body.username?.toLowerCase();
   const password = req.body.password;
 
@@ -75,7 +77,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-router.post('/register', async (req, res) => {
+router.post('/register', validate(registerSchema), async (req, res) => {
   try {
     const username = req.body.username?.toLowerCase();
     const password = req.body.password;

@@ -13,6 +13,6 @@ export const messageSchema = yup.object({
 
 export const finishConversationSchema = yup.object({
   body: yup.object({
-    currentConversationId: yup.string(),
+    currentConversationId: yup.string().required(),
   }),
 });

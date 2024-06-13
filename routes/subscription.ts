@@ -37,24 +37,36 @@ router.get('/vapidPublicKey', async (req, res) => {
 router.post('/subscribe', validate(subscribeSchema), async (req, res) => {
   const user = await getUser(req?.headers?.authorization);
 
-  if (user === 401 || !user) {
-    saveLog('error', 'GET', 'subscription/subscribe', 'no logged user', {
-      user,
-    });
-    res.status(404).json({ message: 'no logged user' });
-    return;
-  }
-
-  const userId = user?._id;
-  const subscription = new SubscriptionModel({
-    ...req.body.subscription,
-    userId,
-  });
-
   try {
+    if (user === 401 || !user) {
+      saveLog('error', 'GET', 'subscription/subscribe', 'no logged user', {
+        user,
+      });
+      res.status(404).json({ message: 'no logged user' });
+      return;
+    }
+
+    const userId = user?._id;
+
+    const hasSubscription = await SubscriptionModel.findOne({
+      endpoint: req.body.subscription,
+    });
+
+    if (hasSubscription) {
+      res
+        .status(409)
+        .json({ message: 'You already have subscription on this device' });
+      return;
+    }
+
+    const subscription = new SubscriptionModel({
+      ...req.body.subscription,
+      userId,
+    });
+
     await subscription.save();
     await scheduleNotification(req.body.userId);
-    res.status(201).json({});
+    res.status(201).json({ message: 'success' });
   } catch (error) {
     console.error('Failed to save subscription:', error);
     res.sendStatus(500);

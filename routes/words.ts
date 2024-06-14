@@ -31,14 +31,12 @@ const router = express.Router();
 router.get('/all', async (req, res) => {
   try {
     const user = await getUser(req?.headers?.authorization);
-    console.log(2, user);
     if (user === 401 || !user) {
       saveLog('error', 'GET', 'words/all', 'no logged user', { user });
       res.status(401).json({ message: 'no logged user' });
       return;
     }
     const userId = user?._id;
-    console.log(1, userId);
     const words = await WordModel.find({ userId });
 
     saveLog('info', 'GET', 'words/all', 'get word success', { userId });

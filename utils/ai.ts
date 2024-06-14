@@ -60,7 +60,6 @@ export const getNewWords = async (
     languageToLearn,
     baseLanguage,
   });
-  console.log(1.1, { response }, typeof response);
   // @ts-ignore
   return response.map((newWord) => ({ ...newWord, id: v4() }));
 };

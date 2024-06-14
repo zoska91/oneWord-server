@@ -25,7 +25,6 @@ export async function loginAndAddWords(app: any): Promise<ILoggedUser> {
     });
 
     await newWord.save();
-    console.log(`Added word: ${wordData.basicWord}`);
   });
 
   await Promise.all(promises);

@@ -1,0 +1,2 @@
+export const MAX_LENGTH_TODAY_WORD = 564;
+export const MAX_LENGTH_LANGUAGE_TO_LEARN = 64;

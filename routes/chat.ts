@@ -18,10 +18,12 @@ import {
   getNewWords,
   getSummaryConversation,
 } from '../utils/ai';
+import { validate } from '../validation';
+import { finishConversationSchema, messageSchema } from '../validation/chat';
 
 const router = express.Router();
 
-router.post('/message', async (req, res) => {
+router.post('/message', validate(messageSchema), async (req, res) => {
   const user = await getUser(req?.headers?.authorization);
 
   if (user === 401 || !user || !user.isAi) {
@@ -87,42 +89,52 @@ router.post('/message', async (req, res) => {
   });
 });
 
-router.post('/finished-conversation', async (req, res) => {
-  const user = await getUser(req?.headers?.authorization);
+router.post(
+  '/finished-conversation',
+  validate(finishConversationSchema),
+  async (req, res) => {
+    const user = await getUser(req?.headers?.authorization);
 
-  if (user === 401 || !user || !user.isAi) {
-    saveLog('error', 'POST', 'chat/message', 'no logged user', { user });
-    res.status(404).json({ message: 'no logged user' });
-    return;
-  }
-  const { conversationId } = req.body;
+    if (user === 401 || !user || !user.isAi) {
+      saveLog('error', 'POST', 'chat/message', 'no logged user', { user });
+      res.status(404).json({ message: 'no logged user' });
+      return;
+    }
+    const { conversationId } = req.body;
 
-  if (!conversationId) {
-    saveLog('error', 'POST', 'chat/finished-conversation', 'no conversation', {
-      user,
+    if (!conversationId) {
+      saveLog(
+        'error',
+        'POST',
+        'chat/finished-conversation',
+        'no conversation',
+        {
+          user,
+        }
+      );
+      res.status(404).json({ message: 'no conversation' });
+      return;
+    }
+
+    let mistakes: IMistake[] = [];
+    let newWords: INewWord[] = [];
+
+    const messages = await MessageModel.find({ conversationId }).lean();
+    messages.forEach((message) => {
+      mistakes = [...mistakes, ...message.mistakes];
+      newWords = [...newWords, ...message.newWords];
     });
-    res.status(404).json({ message: 'no conversation' });
-    return;
+
+    const summary = await getSummaryConversation({
+      messages,
+      userName: user.name,
+      aiName: user.aiName,
+    });
+
+    await saveSummary(summary, user._id.toString(), conversationId);
+    res.json({ mistakes, newWords });
   }
-
-  let mistakes: IMistake[] = [];
-  let newWords: INewWord[] = [];
-
-  const messages = await MessageModel.find({ conversationId }).lean();
-  messages.forEach((message) => {
-    mistakes = [...mistakes, ...message.mistakes];
-    newWords = [...newWords, ...message.newWords];
-  });
-
-  const summary = await getSummaryConversation({
-    messages,
-    userName: user.name,
-    aiName: user.aiName,
-  });
-
-  await saveSummary(summary, user._id.toString(), conversationId);
-  res.json({ mistakes, newWords });
-});
+);
 
 router.get('/api-key', async (req, res) => {
   const user = await getUser(req?.headers?.authorization);

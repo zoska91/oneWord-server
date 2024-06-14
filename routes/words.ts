@@ -12,6 +12,19 @@ import {
 } from '../utils/words';
 import { saveLog } from '../logger';
 import { getUser } from '../utils/getUser';
+import { validate } from '../validation';
+import {
+  addWordSchema,
+  deleteWordSchema,
+  getLearnedWordsSchema,
+  putWordSchema,
+} from '../validation/words';
+
+type FiltersType = {
+  userId: string;
+  status: number;
+  createdDate?: { $gte: Date };
+};
 
 const router = express.Router();
 
@@ -37,7 +50,7 @@ router.get('/all', async (req, res) => {
   }
 });
 
-router.post('/add-one', async (req, res) => {
+router.post('/add-one', validate(addWordSchema), async (req, res) => {
   try {
     const user = await getUser(req?.headers?.authorization);
 
@@ -120,7 +133,7 @@ router.post('/add-csv', async (req, res) => {
   }
 });
 
-router.put('/update-one/:id', async (req, res) => {
+router.put('/update-one/:id', validate(putWordSchema), async (req, res) => {
   try {
     const id = new mongoose.Types.ObjectId(req.params.id);
     const data = await WordModel.findOneAndUpdate(
@@ -153,25 +166,29 @@ router.put('/update-one/:id', async (req, res) => {
   }
 });
 
-router.delete('/delete-one/:id', async (req, res) => {
-  try {
-    const id = new mongoose.Types.ObjectId(req.params.id);
-    const data = await WordModel.findByIdAndDelete({ _id: id });
+router.delete(
+  '/delete-one/:id',
+  validate(deleteWordSchema),
+  async (req, res) => {
+    try {
+      const id = new mongoose.Types.ObjectId(req.params.id);
+      const data = await WordModel.findByIdAndDelete({ _id: id });
 
-    saveLog('error', 'DELETE', 'words/delete-one', 'update success', {
-      wordId: id,
-    });
-    res.json(data);
-  } catch (e) {
-    console.log(e);
-    saveLog('error', 'DELETE', 'words/delete-one', 'system error', {
-      error: e,
-      wordId: req.params.id,
-    });
+      saveLog('error', 'DELETE', 'words/delete-one', 'update success', {
+        wordId: id,
+      });
+      res.json(data);
+    } catch (e) {
+      console.log(e);
+      saveLog('error', 'DELETE', 'words/delete-one', 'system error', {
+        error: e,
+        wordId: req.params.id,
+      });
 
-    res.status(500).json({ message: 'something went wrong' });
+      res.status(500).json({ message: 'something went wrong' });
+    }
   }
-});
+);
 
 router.get('/today-word', async (req, res) => {
   try {
@@ -226,30 +243,45 @@ router.get('/today-word', async (req, res) => {
   }
 });
 
-router.get('/learned-words', async (req, res) => {
-  try {
-    const user = await getUser(req?.headers?.authorization);
+router.get(
+  '/learned-words',
+  validate(getLearnedWordsSchema),
+  async (req, res) => {
+    try {
+      const user = await getUser(req?.headers?.authorization);
 
-    if (user === 401 || !user) {
-      saveLog('error', 'GET', 'last-words', 'no logged user', { user });
-      res.status(404).json({ message: 'no logged user' });
-      return;
+      if (user === 401 || !user) {
+        saveLog('error', 'GET', 'last-words', 'no logged user', { user });
+        res.status(404).json({ message: 'no logged user' });
+        return;
+      }
+
+      const { limit, days } = req.query;
+      const userId = user?._id.toString();
+
+      const filters: FiltersType = {
+        userId,
+        status: 2,
+      };
+
+      if (days) {
+        const limitDay = new Date();
+        limitDay.setDate(limitDay.getDate() - Number(days));
+        filters.createdDate = { $gte: limitDay };
+      }
+
+      const words = await WordModel.find({ filters })
+        .sort({ updatedDate: -1 })
+        .limit(Number(limit));
+
+      saveLog('info', 'GET', 'last-words', 'get word success', { userId });
+      res.json({ words });
+    } catch (e) {
+      console.log(e);
+      saveLog('warn', 'GET', 'last-words', 'system error', { error: e });
+      return res.status(500).json({ message: 'something went wrong' });
     }
-
-    const limit = req.query.limit;
-    const userId = user?._id;
-
-    const words = await WordModel.find({ userId, status: 2 })
-      .sort({ updatedDate: -1 })
-      .limit(Number(limit));
-
-    saveLog('info', 'GET', 'last-words', 'get word success', { userId });
-    res.json({ words });
-  } catch (e) {
-    console.log(e);
-    saveLog('warn', 'GET', 'last-words', 'system error', { error: e });
-    return res.status(500).json({ message: 'something went wrong' });
   }
-});
+);
 
 export default router;

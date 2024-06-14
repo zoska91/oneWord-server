@@ -4,6 +4,8 @@ import { getUser } from '../utils/getUser';
 import { saveLog } from '../logger';
 import { SettingsModel } from '../models/settings';
 import { scheduleNotification } from '../utils/subscription';
+import { validate } from '../validation';
+import { userSettingsSchema } from '../validation/settings';
 
 const router = express.Router();
 
@@ -29,7 +31,7 @@ router.get('/user-settings', async (req, res) => {
   }
 });
 
-router.put('/user-settings', async (req, res) => {
+router.put('/user-settings', validate(userSettingsSchema), async (req, res) => {
   try {
     const user = await getUser(req?.headers?.authorization);
     if (user === 401 || !user) {

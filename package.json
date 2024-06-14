@@ -37,7 +37,8 @@
     "swagger-ui-express": "^4.6.0",
     "ts-node": "^10.9.2",
     "web-push": "^3.6.7",
-    "winston": "^3.13.0"
+    "winston": "^3.13.0",
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",

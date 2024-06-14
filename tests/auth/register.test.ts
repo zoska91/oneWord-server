@@ -6,7 +6,7 @@ import { UserModel } from '../../models/user';
 import app from '../testsApp';
 
 describe('POST /api/auth/register', () => {
-  it.only('should register a new user', async () => {
+  it('should register a new user', async () => {
     const res = await request(app).post('/api/auth/register').send({
       username: 'testuser',
       password: 'testpassword',

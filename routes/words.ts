@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import csvtojson from 'csvtojson';
+import path from 'path';
 
 import { SettingsModel } from '../models/settings';
 import { IWord, WordModel } from '../models/word';
@@ -99,6 +100,13 @@ router.post('/add-csv', async (req, res) => {
       return;
     }
 
+    if (path.extname(file.name) !== '.csv') {
+      saveLog('warn', 'POST', 'words/add-csv', 'invalid file type', {
+        files: req.files,
+      });
+      return res.status(400).send({ message: 'Only CSV files are allowed' });
+    }
+
     await csvtojson({ noheader: false, output: 'json' })
       .fromString(file.data.toString('utf8'))
       .then((jsonObj) => {
@@ -106,15 +114,12 @@ router.post('/add-csv', async (req, res) => {
           return res.status(400).json({ message: 'empty file' });
         if (jsonObj.length > 50)
           return res.status(200).json({ message: 'to much rows' });
+        if (!jsonObj[0].basicWord)
+          return res.status(400).json({ message: 'wrong basic word key' });
+        if (!jsonObj[0].transWord)
+          return res.status(400).json({ message: 'wrong transform word key' });
 
         jsonObj.forEach((word) => {
-          if (!word.basicWord)
-            return res.status(400).json({ message: 'wrong basic word key' });
-          if (!word.transWord)
-            return res
-              .status(400)
-              .json({ message: 'wrong transform word key' });
-
           const newWord = new WordModel({ userId, ...word });
 
           newWord.save();

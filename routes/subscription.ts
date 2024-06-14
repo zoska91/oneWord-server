@@ -14,11 +14,11 @@ import { validate } from '../validation';
 
 const router = express.Router();
 
-webpush.setVapidDetails(
-  process.env.VAPID_SUBJECT || '',
-  process.env.VAPID_PUBLIC_KEY || '',
-  process.env.VAPID_PRIVATE_KEY || ''
-);
+// webpush.setVapidDetails(
+//   process.env.VAPID_SUBJECT || '',
+//   process.env.VAPID_PUBLIC_KEY || '',
+//   process.env.VAPID_PRIVATE_KEY || ''
+// );
 
 router.get('/vapidPublicKey', async (req, res) => {
   const user = await getUser(req?.headers?.authorization);

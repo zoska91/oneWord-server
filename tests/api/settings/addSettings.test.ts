@@ -1,10 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
-import bcrypt from 'bcrypt';
 
-import app from '../testsApp';
-import { UserModel } from '../../models/user';
-import { AvailableLanguages } from '../../enums/languages';
+import app from '../../testsApp';
+import { UserModel } from '../../../models/user';
+import { AvailableLanguages } from '../../../enums/languages';
 
 describe('Registration, Login, and User Settings Endpoint Tests', async () => {
   it('should register a new user and create default settings', async () => {
@@ -59,9 +58,10 @@ describe('Registration, Login, and User Settings Endpoint Tests', async () => {
     );
   });
 
-  it('should return 404 if attempting to fetch settings without authentication', async () => {
+  it('should return 401 if attempting to fetch settings without authentication', async () => {
     const res = await request(app).get('/api/settings/user-settings');
-    expect(res.statusCode).toEqual(404);
+
+    expect(res.statusCode).toEqual(401);
     expect(res.body).toHaveProperty('message', 'no logged user');
   });
 });

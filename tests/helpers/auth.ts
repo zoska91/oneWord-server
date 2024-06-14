@@ -1,8 +1,6 @@
 import request from 'supertest';
 import bcrypt from 'bcrypt';
-
-import { ILoggedUser, UserModel } from '../models/user';
-import { SettingsModel } from '../models/settings';
+import { ILoggedUser, UserModel } from '../../models/user';
 
 export async function loginUserWithAi(app: any): Promise<ILoggedUser> {
   const hashedPassword = await bcrypt.hash('testpassword', 10);
@@ -20,8 +18,7 @@ export async function loginUserWithAi(app: any): Promise<ILoggedUser> {
   return loginRes.body;
 }
 
-export async function loginUserNoAi(app: any): Promise<ILoggedUser> {
-  // Rejestracja użytkownika
+export async function loginRegularUser(app: any): Promise<ILoggedUser> {
   const hashedPassword = await bcrypt.hash('testpassword', 10);
   await new UserModel({
     username: 'testuser_regular',
@@ -36,25 +33,17 @@ export async function loginUserNoAi(app: any): Promise<ILoggedUser> {
   return loginRes.body;
 }
 
-export async function getUserWithSettings(app: any): Promise<ILoggedUser> {
-  const username = 'testuser_regular';
-  const password = 'testpassword';
+export async function loginExtraUser(app: any): Promise<ILoggedUser> {
+  const hashedPassword = await bcrypt.hash('testextrapassword', 10);
+  await new UserModel({
+    username: 'testextrauser_regular',
+    password: hashedPassword,
+  }).save();
 
-  const registerRes = await request(app)
-    .post('/api/auth/register')
-    .send({ username, password });
-
-  if (registerRes.statusCode !== 200) {
-    throw new Error('Registration failed');
-  }
-
-  const loginRes = await request(app)
-    .post('/api/auth/login')
-    .send({ username, password });
-
-  if (loginRes.statusCode !== 200) {
-    throw new Error('Login failed');
-  }
+  const loginRes = await request(app).post('/api/auth/login').send({
+    username: 'testextrauser_regular',
+    password: 'testextrapassword',
+  });
 
   return loginRes.body;
 }

@@ -1,20 +1,16 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import request from 'supertest';
-import mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
 
-import { UserModel } from '../../models/user';
-
-import app from '../testsApp';
-import { MAX_LENGTH_LANGUAGE_TO_LEARN } from '../../validation/helpers';
-import { loginUserNoAi, loginUserWithAi } from '../helpers';
+import app from '../../testsApp';
+import { MAX_LENGTH_LANGUAGE_TO_LEARN } from '../../../validation/helpers';
+import { loginRegularUser, loginUserWithAi } from '../../helpers/auth';
 
 let mongoServer: MongoMemoryServer;
 
 describe('POST /api/chat/message', () => {
   it('should send a message when user is authenticated and is not an AI', async () => {
-    const user = await loginUserNoAi(app);
+    const user = await loginRegularUser(app);
 
     const res = await request(app)
       .post('/api/chat/message')
@@ -26,7 +22,7 @@ describe('POST /api/chat/message', () => {
         todayWord: 'Hola',
       });
 
-    expect(res.statusCode).toEqual(404);
+    expect(res.statusCode).toEqual(401);
     expect(res.body).toHaveProperty('message', 'no logged user');
   });
 

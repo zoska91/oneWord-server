@@ -5,11 +5,11 @@ import { SubscriptionModel } from '../models/subscription';
 import { SettingsModel } from '../models/settings';
 import { CronModel } from '../models/cron';
 
-// webpush.setVapidDetails(
-//   process.env.VAPID_SUBJECT || '',
-//   process.env.VAPID_PUBLIC_KEY || '',
-//   process.env.VAPID_PRIVATE_KEY || ''
-// );
+webpush.setVapidDetails(
+  process.env.VAPID_SUBJECT || '',
+  process.env.VAPID_PUBLIC_KEY || '',
+  process.env.VAPID_PRIVATE_KEY || ''
+);
 
 const setNotification = async (userId: string) => {
   const notificationPayload = JSON.stringify({

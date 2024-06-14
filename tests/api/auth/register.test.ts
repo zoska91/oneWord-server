@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
 
-import { UserModel } from '../../models/user';
+import { UserModel } from '../../../models/user';
 
-import app from '../testsApp';
+import app from '../../testsApp';
 
 describe('POST /api/auth/register', () => {
   it('should register a new user', async () => {

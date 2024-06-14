@@ -28,7 +28,7 @@ router.post('/message', validate(messageSchema), async (req, res) => {
 
   if (user === 401 || !user || !user.isAi) {
     saveLog('error', 'POST', 'chat/message', 'no logged user', { user });
-    res.status(404).json({ message: 'no logged user' });
+    res.status(401).json({ message: 'no logged user' });
     return;
   }
 
@@ -97,7 +97,7 @@ router.post(
 
     if (user === 401 || !user || !user.isAi) {
       saveLog('error', 'POST', 'chat/message', 'no logged user', { user });
-      res.status(404).json({ message: 'no logged user' });
+      res.status(401).json({ message: 'no logged user' });
       return;
     }
     const { conversationId } = req.body;
@@ -141,7 +141,7 @@ router.get('/api-key', async (req, res) => {
 
   if (user === 401 || !user || !user.isAi) {
     saveLog('error', 'GET', 'auth/user', 'no logged user', { user });
-    res.status(404).json({ message: 'no logged user' });
+    res.status(401).json({ message: 'no logged user' });
     return;
   }
 

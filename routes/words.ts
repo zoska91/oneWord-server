@@ -31,14 +31,14 @@ const router = express.Router();
 router.get('/all', async (req, res) => {
   try {
     const user = await getUser(req?.headers?.authorization);
-
+    console.log(2, user);
     if (user === 401 || !user) {
       saveLog('error', 'GET', 'words/all', 'no logged user', { user });
-      res.status(404).json({ message: 'no logged user' });
+      res.status(401).json({ message: 'no logged user' });
       return;
     }
     const userId = user?._id;
-
+    console.log(1, userId);
     const words = await WordModel.find({ userId });
 
     saveLog('info', 'GET', 'words/all', 'get word success', { userId });
@@ -56,7 +56,7 @@ router.post('/add-one', validate(addWordSchema), async (req, res) => {
 
     if (user === 401 || !user) {
       saveLog('error', 'POST', 'words/add-one', 'no logged user', { user });
-      res.status(404).json({ message: 'no logged user' });
+      res.status(401).json({ message: 'no logged user' });
       return;
     }
     const userId = user?._id;
@@ -135,9 +135,18 @@ router.post('/add-csv', async (req, res) => {
 
 router.put('/update-one/:id', validate(putWordSchema), async (req, res) => {
   try {
+    const user = await getUser(req?.headers?.authorization);
+
+    if (user === 401 || !user) {
+      saveLog('error', 'POST', 'words/add-csv', 'no logged user', { user });
+      res.status(401).json({ message: 'no logged user' });
+      return;
+    }
+    const userId = user?._id;
+
     const id = new mongoose.Types.ObjectId(req.params.id);
     const data = await WordModel.findOneAndUpdate(
-      { _id: req.params.id },
+      { _id: req.params.id, userId },
       { updatedDate: new Date(), ...req.body },
       { new: true }
     );
@@ -171,8 +180,29 @@ router.delete(
   validate(deleteWordSchema),
   async (req, res) => {
     try {
+      const user = await getUser(req?.headers?.authorization);
+
+      if (user === 401 || !user) {
+        saveLog('error', 'POST', 'words/add-csv', 'no logged user', { user });
+        res.status(401).json({ message: 'no logged user' });
+        return;
+      }
+      const userId = user?._id;
+
       const id = new mongoose.Types.ObjectId(req.params.id);
-      const data = await WordModel.findByIdAndDelete({ _id: id });
+      const data = await WordModel.findByIdAndDelete({
+        _id: id,
+        userId,
+      });
+
+      if (!data) {
+        saveLog('info', 'PUT', 'words/update-one', 'word not found', {
+          wordId: id,
+        });
+
+        res.status(404).json({ message: 'word not found' });
+        return;
+      }
 
       saveLog('error', 'DELETE', 'words/delete-one', 'update success', {
         wordId: id,
@@ -196,7 +226,7 @@ router.get('/today-word', async (req, res) => {
 
     if (user === 401 || !user) {
       saveLog('error', 'GET', 'today-word', 'no logged user', { user });
-      res.status(404).json({ message: 'no logged user' });
+      res.status(401).json({ message: 'no logged user' });
       return;
     }
     const userId = user?._id;
@@ -209,7 +239,7 @@ router.get('/today-word', async (req, res) => {
     if (breakDay && isBreak && checkIsBreakDay(breakDay))
       return res.json({ message: 'Today is break day!' });
 
-    const currentWord: IWord = await WordModel.findOne({
+    const currentWord: IWord | null = await WordModel.findOne({
       status: 1,
       userId,
     }).lean();
@@ -252,7 +282,7 @@ router.get(
 
       if (user === 401 || !user) {
         saveLog('error', 'GET', 'last-words', 'no logged user', { user });
-        res.status(404).json({ message: 'no logged user' });
+        res.status(401).json({ message: 'no logged user' });
         return;
       }
 

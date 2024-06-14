@@ -1,15 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
 
-import app from '../testsApp';
-import { getUserWithSettings } from '../helpers';
-import { SettingsModel } from '../../models/settings';
+import app from '../../testsApp';
+import { SettingsModel } from '../../../models/settings';
+import { getUserWithSettings } from '../../helpers/settings';
 
 describe('PUT /api/chat/user-settings Endpoint Tests', async () => {
   it('should update user settings for authenticated user', async () => {
-    console.log(getUserWithSettings);
     const loggedInUser = await getUserWithSettings(app);
-    console.log(11, loggedInUser);
 
     const updatedSettings = {
       breakDay: 2,
@@ -71,7 +69,7 @@ describe('PUT /api/chat/user-settings Endpoint Tests', async () => {
   it('should return 404 if user is not authenticated', async () => {
     const res = await request(app).put('/api/settings/user-settings');
 
-    expect(res.statusCode).toEqual(404);
+    expect(res.statusCode).toEqual(401);
     expect(res.body).toHaveProperty('message', 'no logged user');
   });
 });

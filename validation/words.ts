@@ -18,13 +18,13 @@ export const putWordSchema = yup.object({
     status: yup.number(),
   }),
   params: yup.object({
-    id: yup.number().required(),
+    id: yup.string().required(),
   }),
 });
 
 export const deleteWordSchema = yup.object({
   params: yup.object({
-    id: yup.number().required(),
+    id: yup.string().required(),
   }),
 });
 

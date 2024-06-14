@@ -1,12 +1,10 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { MongoMemoryServer } from 'mongodb-memory-server';
+import { describe, it, expect } from 'vitest';
 import request from 'supertest';
-import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 
-import { UserModel } from '../../models/user';
+import { UserModel } from '../../../models/user';
 
-import app from '../testsApp';
+import app from '../../testsApp';
 describe('POST /api/auth/login', () => {
   it('should log in an existing user with correct credentials', async () => {
     // Create a test user

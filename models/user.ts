@@ -10,6 +10,13 @@ export interface IUser extends Document {
   salt?: string;
 }
 
+export interface ILoggedUser {
+  message: string;
+  token: string;
+  isAi: boolean;
+  id: string;
+}
+
 const userSchema = new mongoose.Schema({
   username: { type: String, required: [true, 'email jest wymagany'] },
   password: { type: String, required: [true, 'hasło jest wymagane'] },

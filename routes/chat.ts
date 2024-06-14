@@ -11,7 +11,7 @@ import {
   sendMessageToAi,
 } from '../utils/conversation';
 
-import { IMistake, INewWord, MessageModel } from '../models/message';
+import { IMessage, IMistake, INewWord, MessageModel } from '../models/message';
 import {
   getCorrectQuery,
   getMistake,
@@ -63,8 +63,8 @@ router.post('/message', validate(messageSchema), async (req, res) => {
     : await getCorrectQuery(query, languageToLearn);
 
   const currentPrompt = getPrompt(isNewConversation, {
-    aiName: user.aiName,
-    userName: user.name,
+    aiName: user.aiName || 'ai',
+    userName: user.name || 'user',
     languageToLearn,
     memories,
     mistakes,
@@ -126,9 +126,9 @@ router.post(
     });
 
     const summary = await getSummaryConversation({
-      messages,
-      userName: user.name,
-      aiName: user.aiName,
+      messages: messages.map(({ _id, ...rest }) => rest as IMessage),
+      userName: user.name || 'user',
+      aiName: user.aiName || 'ai',
     });
 
     await saveSummary(summary, user._id.toString(), conversationId);

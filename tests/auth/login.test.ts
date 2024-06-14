@@ -1,27 +1,12 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 import request from 'supertest';
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 
 import { UserModel } from '../../models/user';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 
 import app from '../testsApp';
-
-let mongoServer: MongoMemoryServer;
-
-beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
-  await mongoose.connect(uri);
-});
-
-afterAll(async () => {
-  await mongoose.disconnect();
-  if (mongoServer) await mongoServer.stop();
-});
-
 describe('POST /api/auth/login', () => {
   it('should log in an existing user with correct credentials', async () => {
     // Create a test user

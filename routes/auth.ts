@@ -43,7 +43,7 @@ router.post('/login', validate(loginSchema), async (req, res) => {
       if (result) {
         var token = jwt.sign(
           { id: data._id, username: data.username },
-          'abfewvsdvarebr'
+          process.env.SECRET || ''
         );
 
         saveLog('info', 'POST', 'auth/login', 'login success', {

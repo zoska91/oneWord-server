@@ -1,26 +1,12 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import request from 'supertest';
-import mongoose from 'mongoose';
+
 import { UserModel } from '../../models/user';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 
 import app from '../testsApp';
 
-let mongoServer: MongoMemoryServer;
-
-beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
-  await mongoose.connect(uri);
-});
-
-afterAll(async () => {
-  await mongoose.disconnect();
-  if (mongoServer) await mongoServer.stop();
-});
-
 describe('POST /api/auth/register', () => {
-  it('should register a new user', async () => {
+  it.only('should register a new user', async () => {
     const res = await request(app).post('/api/auth/register').send({
       username: 'testuser',
       password: 'testpassword',

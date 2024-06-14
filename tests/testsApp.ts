@@ -23,6 +23,12 @@ const app = express();
 const mongoServer = await MongoMemoryServer.create();
 const dbUri = mongoServer.getUri();
 
+async function dbConnect() {
+  await mongoose.connect(dbUri);
+}
+
+dbConnect().catch((err) => console.log(err));
+
 app.use(
   express.urlencoded({
     extended: true,

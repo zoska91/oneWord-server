@@ -6,6 +6,7 @@ import { UserModel } from '../../../models/user';
 
 import app from '../../testsApp';
 describe('POST /api/auth/login', () => {
+  
   it('should log in an existing user with correct credentials', async () => {
     // Create a test user
     const hashedPassword = await bcrypt.hash('testpassword', 10);

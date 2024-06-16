@@ -24,7 +24,7 @@ import {
 type FiltersType = {
   userId: string;
   status: number;
-  createdDate?: { $gte: Date };
+  updatedDate?: { $gte: Date };
 };
 
 const router = express.Router();
@@ -300,11 +300,13 @@ router.get(
       if (days) {
         const limitDay = new Date();
         limitDay.setDate(limitDay.getDate() - Number(days));
-        filters.createdDate = { $gte: limitDay };
+        filters.updatedDate = { $gte: limitDay };
       }
 
-      const words = await WordModel.find({ filters })
-        .sort({ updatedDate: -1 })
+      const words = await WordModel.find({ ...filters })
+        .sort({
+          updatedDate: -1,
+        })
         .limit(Number(limit));
 
       saveLog('info', 'GET', 'last-words', 'get word success', { userId });

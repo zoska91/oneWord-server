@@ -1,14 +1,19 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import request from 'supertest';
 
 import app from '../../testsApp';
 import { SettingsModel } from '../../../models/settings';
 import { getUserWithSettings } from '../../helpers/settings';
+import { ILoggedUser } from '../../../models/user';
 
 describe('PUT /api/chat/user-settings Endpoint Tests', async () => {
-  it('should update user settings for authenticated user', async () => {
-    const loggedInUser = await getUserWithSettings(app);
+  let loggedInUser: ILoggedUser;
 
+  beforeAll(async () => {
+    loggedInUser = await getUserWithSettings(app);
+  });
+
+  it('should update user settings for authenticated user', async () => {
     const updatedSettings = {
       breakDay: 2,
       isBreak: false,
@@ -71,5 +76,67 @@ describe('PUT /api/chat/user-settings Endpoint Tests', async () => {
 
     expect(res.statusCode).toEqual(401);
     expect(res.body).toHaveProperty('message', 'no logged user');
+  });
+
+  it('should update notifications only for authenticated user', async () => {
+    const updatedNotifications = {
+      notifications: [
+        { time: '09:00', type: '2' },
+        { time: '13:00', type: '2' },
+      ],
+    };
+
+    const res = await request(app)
+      .put('/api/settings/user-settings')
+      .set('Authorization', `Bearer ${loggedInUser.token}`)
+      .send(updatedNotifications);
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toHaveProperty('message', 'Update success');
+
+    const settingsInDB = await SettingsModel.findOne({
+      userId: loggedInUser.id,
+    });
+
+    if (!settingsInDB) throw new Error('No settings');
+
+    expect(settingsInDB.notifications.length).toEqual(
+      updatedNotifications.notifications.length
+    );
+    expect(settingsInDB.notifications[0].time).toEqual(
+      updatedNotifications.notifications[0].time
+    );
+    expect(settingsInDB.notifications[0].type).toEqual(
+      updatedNotifications.notifications[0].type
+    );
+    expect(settingsInDB.notifications[1].time).toEqual(
+      updatedNotifications.notifications[1].time
+    );
+    expect(settingsInDB.notifications[1].type).toEqual(
+      updatedNotifications.notifications[1].type
+    );
+  });
+
+  it('should update only status fields for authenticated user', async () => {
+    const updatedStatus = {
+      isBreak: true,
+      isSummary: false,
+    };
+
+    const res = await request(app)
+      .put('/api/settings/user-settings')
+      .set('Authorization', `Bearer ${loggedInUser.token}`)
+      .send(updatedStatus);
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toHaveProperty('message', 'Update success');
+
+    const settingsInDB = await SettingsModel.findOne({
+      userId: loggedInUser.id,
+    });
+
+    if (!settingsInDB) throw new Error('No settings');
+
+    expect(settingsInDB.isBreak).toEqual(updatedStatus.isBreak);
+    expect(settingsInDB.isSummary).toEqual(updatedStatus.isSummary);
   });
 });

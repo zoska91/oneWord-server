@@ -1,5 +1,6 @@
 import request from 'supertest';
-import { ILoggedUser } from '../../models/user';
+import { ILoggedUser, UserModel } from '../../models/user';
+import { SettingsModel } from '../../models/settings';
 
 export async function getUserWithSettings(app: any): Promise<ILoggedUser> {
   const username = 'testuser_regular';

@@ -9,7 +9,7 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist"
   },
-  "include": ["*/*.ts", "tests/api/auth/register.test.ts"],
+  "include": ["*/*.ts"],
   "exclude": ["node_modules"],
   "ts-node": {
     "esm": true,

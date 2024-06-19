@@ -1,7 +1,7 @@
 import mongoose, { Document, Types } from 'mongoose';
 
 export interface IWord extends Document {
-  userId: Types.ObjectId;
+  userId: string;
   basicWord: string;
   transWord: string;
   addLang: number;

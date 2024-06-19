@@ -6,11 +6,19 @@ import app from '../../testsApp';
 import { WordModel } from '../../../models/word';
 import { loginRegularUser } from '../../helpers/auth';
 import { ILoggedUser } from '../../../models/user';
+import { ModelName, cleanAll } from '../../helpers/cleaner';
 
 describe('POST /api/words/add-csv Endpoint Tests', async () => {
   let user: ILoggedUser;
   const filePath = `../files`;
+
   beforeAll(async () => {
+    await cleanAll([
+      ModelName.UserModel,
+      ModelName.UserModel,
+      ModelName.SubscriptionModel,
+    ]);
+
     user = await loginRegularUser(app);
   });
 

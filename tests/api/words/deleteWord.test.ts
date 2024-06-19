@@ -7,6 +7,7 @@ import { IWord, WordModel } from '../../../models/word';
 import { ILoggedUser } from '../../../models/user';
 import { loginAndAddWords } from '../../helpers/words';
 import { loginExtraUser } from '../../helpers/auth';
+import { ModelName, cleanAll } from '../../helpers/cleaner';
 
 describe('DELETE /api/words/delete-one/:id Endpoint Tests', async () => {
   let user: ILoggedUser;
@@ -14,6 +15,11 @@ describe('DELETE /api/words/delete-one/:id Endpoint Tests', async () => {
   let anotherUser: ILoggedUser;
 
   beforeAll(async () => {
+    await cleanAll([
+      ModelName.UserModel,
+      ModelName.UserModel,
+      ModelName.SubscriptionModel,
+    ]);
     user = await loginAndAddWords(app);
     anotherUser = await loginExtraUser(app);
     words = await WordModel.find({ userId: user.id }).lean();

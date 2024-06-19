@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import request from 'supertest';
-import fs from 'fs';
 import path from 'path';
 
 import app from '../../testsApp';

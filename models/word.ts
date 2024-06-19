@@ -8,6 +8,7 @@ export interface IWord extends Document {
   status: number;
   createdDate: Date;
   updatedDate: Date;
+  _id: Types.ObjectId;
 }
 
 const wordSchema = new mongoose.Schema({

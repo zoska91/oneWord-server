@@ -85,7 +85,6 @@ export const getPrompt = (
   isNewConversation: boolean,
   promptParams: IPromptParams
 ) => {
-  console.log(6, promptParams);
   const isTodayWord = Boolean(promptParams.todayWord);
   const mistakesString =
     typeof promptParams.mistakes === 'string'

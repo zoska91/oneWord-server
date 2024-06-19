@@ -1,4 +1,3 @@
-import { saveLog } from '../logger';
 import { IWord, WordModel } from '../models/word';
 
 export const getShuffleWords = (words: IWord[], todayWord: IWord) => {
@@ -7,30 +6,49 @@ export const getShuffleWords = (words: IWord[], todayWord: IWord) => {
     text: todayWord.transWord,
   };
 
-  const firstRandomIndex = Math.floor(Math.random() * words.length);
-  const secondRandomIndex = Math.floor(Math.random() * words.length);
+  if (words.length === 0) {
+    throw new Error('No words available to fetch shuffle words');
+  }
 
-  const firstWord = words[firstRandomIndex];
-  const secondWord =
-    firstRandomIndex === secondRandomIndex
-      ? words[secondRandomIndex + 1]
-      : words[secondRandomIndex];
-
-  if (!firstWord || !secondWord) {
-    saveLog('error', 'GET', 'getShuffleWords', 'no words', {
-      firstWord,
-      secondWord,
-    });
+  // Case 1: One word
+  if (words.length === 1) {
     return [formattedTodayWord, formattedTodayWord, formattedTodayWord];
   }
-  const shuffleWords = [firstWord, secondWord];
 
-  const formattedShuffleWords = shuffleWords.map((el) => ({
-    id: el?._id,
-    text: el?.transWord,
+  // Case 2: Two words
+  if (words.length === 2) {
+    const randomIndex = Math.floor(Math.random() * 2);
+    const firstWord = words[0];
+    const secondWord = words[1];
+
+    const shuffleWords = [
+      randomIndex === 0 ? firstWord : secondWord,
+      firstWord === secondWord ? firstWord : secondWord,
+    ].map((word) => ({
+      id: word._id,
+      text: word.transWord,
+    }));
+
+    return [...shuffleWords, formattedTodayWord];
+  }
+
+  // Case 3: Three or more words
+  const uniqueIndices = new Set<number>();
+  const wordsWithoutTodayWord = words.filter(
+    (word) => word.id !== todayWord._id.toString()
+  );
+  // Ensure we get 3 unique indices
+  while (uniqueIndices.size < 2) {
+    uniqueIndices.add(Math.floor(Math.random() * wordsWithoutTodayWord.length));
+  }
+
+  const indicesArray = Array.from(uniqueIndices);
+  const shuffleWords = indicesArray.map((index) => ({
+    id: wordsWithoutTodayWord[index]._id,
+    text: wordsWithoutTodayWord[index].transWord,
   }));
 
-  return [...formattedShuffleWords, formattedTodayWord];
+  return [...shuffleWords, formattedTodayWord];
 };
 
 export const getRandomWord = async (
@@ -63,8 +81,9 @@ export const getRandomWord = async (
 
 export const checkIsBreakDay = (breakDay: number) => {
   const todayDate = new Date();
-  const todayDay = todayDate.getDay();
-  return +breakDay === +todayDay;
+  const todayDateOfWeek = todayDate.getDay();
+
+  return breakDay === todayDateOfWeek;
 };
 
 export const isTheSameDates = (wordDate: Date) => {

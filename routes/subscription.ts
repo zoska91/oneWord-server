@@ -27,7 +27,7 @@ router.get('/vapidPublicKey', async (req, res) => {
     saveLog('error', 'GET', 'subscription/vapidPublicKey', 'no logged user', {
       user,
     });
-    res.status(404).json({ message: 'no logged user' });
+    res.status(401).json({ message: 'no logged user' });
     return;
   }
 
@@ -42,7 +42,7 @@ router.post('/subscribe', validate(subscribeSchema), async (req, res) => {
       saveLog('error', 'GET', 'subscription/subscribe', 'no logged user', {
         user,
       });
-      res.status(404).json({ message: 'no logged user' });
+      res.status(401).json({ message: 'no logged user' });
       return;
     }
 
@@ -66,7 +66,7 @@ router.post('/subscribe', validate(subscribeSchema), async (req, res) => {
 
     await subscription.save();
     await scheduleNotification(req.body.userId);
-    res.status(201).json({ message: 'success' });
+    res.status(200).json({ message: 'success' });
   } catch (error) {
     console.error('Failed to save subscription:', error);
     res.sendStatus(500);
@@ -80,7 +80,7 @@ router.delete('/unsubscribe', async (req, res) => {
     saveLog('error', 'GET', 'subscription/unsubscribe', 'no logged user', {
       user,
     });
-    res.status(404).json({ message: 'no logged user' });
+    res.status(401).json({ message: 'no logged user' });
     return;
   }
 

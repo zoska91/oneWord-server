@@ -239,9 +239,6 @@ router.get('/today-word', async (req, res) => {
         userId,
       }).lean()) || {};
 
-    if (breakDay && isBreak && checkIsBreakDay(breakDay))
-      return res.json({ message: 'Today is break day!' });
-
     const currentWord: IWord | null = await WordModel.findOne({
       status: 1,
       userId,
@@ -263,6 +260,11 @@ router.get('/today-word', async (req, res) => {
 
     if (!todayWord) {
       res.status(404).json({ message: 'no words' });
+      return;
+    }
+
+    if (isBreak && breakDay != null && checkIsBreakDay(breakDay)) {
+      res.json({ message: 'Today is break day!' });
       return;
     }
 

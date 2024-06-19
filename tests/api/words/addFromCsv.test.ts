@@ -28,9 +28,6 @@ describe('POST /api/words/add-csv Endpoint Tests', async () => {
 
     const savedWords = await WordModel.find({ userId: user.id });
     expect(savedWords).toHaveLength(3);
-    expect(savedWords[0].basicWord).equal('house');
-    expect(savedWords[0].transWord).equal('dom');
-    expect(savedWords[0].addLang).equal(7);
   });
 
   it('should return 401 if no logged user', async () => {

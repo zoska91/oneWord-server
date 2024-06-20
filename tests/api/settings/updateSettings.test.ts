@@ -5,6 +5,7 @@ import app from '../../testsApp';
 import { SettingsModel } from '../../../models/settings';
 import { getUserWithSettings } from '../../helpers/settings';
 import { ILoggedUser } from '../../../models/user';
+import { CronModel } from '../../../models/cron';
 
 describe('PUT /api/chat/user-settings Endpoint Tests', async () => {
   let loggedInUser: ILoggedUser;
@@ -69,6 +70,14 @@ describe('PUT /api/chat/user-settings Endpoint Tests', async () => {
       updatedSettings.languageToLearn
     );
     expect(settingsInDB.baseLanguage).toEqual(updatedSettings.baseLanguage);
+
+    const cronJobs = await CronModel.find({ userId: loggedInUser.id });
+    expect(cronJobs).toHaveLength(3);
+
+    const cronJobTimes = cronJobs.map((job) => job.time);
+    expect(cronJobTimes).toEqual(
+      expect.arrayContaining(['08:00', '12:00', '18:00'])
+    );
   });
 
   it('should return 404 if user is not authenticated', async () => {
@@ -114,6 +123,11 @@ describe('PUT /api/chat/user-settings Endpoint Tests', async () => {
     expect(settingsInDB.notifications[1].type).toEqual(
       updatedNotifications.notifications[1].type
     );
+
+    const cronJobs = await CronModel.find({ userId: loggedInUser.id });
+    expect(cronJobs).toHaveLength(2);
+    const cronJobTimes = cronJobs.map((job) => job.time);
+    expect(cronJobTimes).toEqual(expect.arrayContaining(['09:00', '13:00']));
   });
 
   it('should update only status fields for authenticated user', async () => {

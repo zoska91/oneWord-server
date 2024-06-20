@@ -2,15 +2,20 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import request from 'supertest';
 
 import app from '../../testsApp';
-import { WordModel } from '../../../models/word';
 import { ILoggedUser } from '../../../models/user';
 import { getUserWithLearnedWords } from '../../helpers/words';
+import { ModelName, cleanAll } from '../../helpers/cleaner';
 
 describe('GET /api/words/learned-words Endpoint Tests', () => {
   let user: ILoggedUser;
   let token: string;
 
   beforeAll(async () => {
+    await cleanAll([
+      ModelName.UserModel,
+      ModelName.UserModel,
+      ModelName.SubscriptionModel,
+    ]);
     user = await getUserWithLearnedWords(app);
     token = user.token;
   });

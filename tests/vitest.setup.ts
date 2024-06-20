@@ -20,8 +20,35 @@ vi.mock('web-push', async (importOriginal) => {
         if (!subject || !publicKey || !privateKey) {
           throw new Error('Missing required parameters for setVapidDetails.');
         }
-        // @ts-ignore
-        actual.setVapidDetails(subject, publicKey, privateKey);
+        return true;
       }),
+  };
+});
+
+vi.mock('./ai', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    // @ts-ignore
+    ...actual,
+    getStandaloneQuestionForMemories: vi.fn().mockResolvedValue('mockQuestion'),
+    rerank: vi.fn(),
+  };
+});
+
+vi.mock('../chat/qdrant/searchMemories', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    // @ts-ignore
+    ...actual,
+    searchMemories: vi.fn(),
+  };
+});
+
+vi.mock('../chat/qdrant/setData', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    // @ts-ignore
+    ...actual,
+    saveMemory: vi.fn(),
   };
 });

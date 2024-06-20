@@ -43,7 +43,7 @@ router.put('/user-settings', validate(userSettingsSchema), async (req, res) => {
     const userId = user?._id.toString();
 
     await SettingsModel.findOneAndUpdate({ userId }, req.body);
-    scheduleNotification(userId);
+    await scheduleNotification(userId);
 
     saveLog(
       'info',

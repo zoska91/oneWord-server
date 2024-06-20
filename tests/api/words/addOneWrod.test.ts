@@ -6,12 +6,19 @@ import { WordModel } from '../../../models/word';
 import { loginRegularUser } from '../../helpers/auth';
 import { MAX_LENGTH_TODAY_WORD } from '../../../validation/helpers';
 import { ILoggedUser } from '../../../models/user';
+import { ModelName, cleanAll } from '../../helpers/cleaner';
 
 describe('POST /api/words/add-one Endpoint Tests', async () => {
   let user: ILoggedUser;
   const mockWordData = { basicWord: 'house', transWord: 'dom', addLang: 7 };
 
   beforeAll(async () => {
+    await cleanAll([
+      ModelName.UserModel,
+      ModelName.UserModel,
+      ModelName.SubscriptionModel,
+    ]);
+
     user = await loginRegularUser(app);
   });
 

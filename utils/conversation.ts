@@ -36,7 +36,7 @@ export const getMemories = async ({
       .limit(3)
       .lean();
 
-    return memories.map((mem) => mem.description).join('');
+    return memories.map((mem) => mem.description).join('\n');
   }
 
   const collectionName = `oneWord-${userId}`;
@@ -47,7 +47,7 @@ export const getMemories = async ({
   const documents = await searchMemories(collectionName, standaloneQuestion);
 
   const memories = await rerank(query, documents);
-  return memories.map((mem) => mem.content).join('');
+  return memories.map((mem) => mem.content).join('\n');
 };
 
 export const getMessages = async ({
@@ -68,15 +68,15 @@ export const getMessages = async ({
       messagesHistory.push(new HumanMessage(message.human));
     });
   }
+
   // if no query and conversation - it initial message
-  const messages =
-    conversationId && query
-      ? [
-          new SystemMessage(currentPrompt),
-          ...messagesHistory,
-          new HumanMessage(query),
-        ]
-      : [new SystemMessage(currentPrompt)];
+  const messages = conversationId
+    ? [
+        new SystemMessage(currentPrompt),
+        ...messagesHistory,
+        new HumanMessage(query),
+      ]
+    : [new SystemMessage(currentPrompt)];
 
   return messages;
 };
@@ -178,5 +178,5 @@ export const saveSummary = async (
     userId,
   });
 
-  newMessage.save();
+  await newMessage.save();
 };

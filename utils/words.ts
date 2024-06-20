@@ -35,8 +35,9 @@ export const getShuffleWords = (words: IWord[], todayWord: IWord) => {
   // Case 3: Three or more words
   const uniqueIndices = new Set<number>();
   const wordsWithoutTodayWord = words.filter(
-    (word) => word.id !== todayWord._id.toString()
+    (word) => word._id.toString() !== todayWord._id.toString()
   );
+
   // Ensure we get 3 unique indices
   while (uniqueIndices.size < 2) {
     uniqueIndices.add(Math.floor(Math.random() * wordsWithoutTodayWord.length));

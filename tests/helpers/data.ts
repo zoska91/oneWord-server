@@ -256,3 +256,28 @@ export const lotOfDifferentWords = (loggedInUser: ILoggedUser) => [
     addLang: 3,
   },
 ];
+
+export const prompts = {
+  expectedMistakePrompt: `
+  Student: User made mistake: [{"id":"1","mistake":"wrong","correction":"right"}]
+  I will tell User that they made mistake and tell correction. 
+  After that given conversation I'll continue conversation. 
+  It will sound as natural as possible to keep the immersive experience.
+  `,
+  expectedBeginTemplate: `
+  Now I'm starting a new conversation. I should say hello to User and based on the given memories, including User's hobbies, interesting facts, previous mistakes, etc., I'll say something that might be interesting for User and encourage conversation.
+  memories: Memory 1\nMemory 2\nMemory 3
+  `,
+  expectedAnswerTemplate: `
+  I am in the middle of conversation with User.
+  I'll continue the conversation. It will sound as natural as possible to maintain the immersive experience. 
+  If the topic is exhausted or we've been talking about something for a while, try changing the subject by referring to memories, including User's hobbies, interesting facts, previous mistakes, etc.  
+  memories: Memory 1\nMemory 2\nMemory 3
+  `,
+  expectedBeginWithWordTemplate: `
+  The word that User wants to learn today is: testWord. To help with this, I will create a sentence that includes testWord, but I will replace it with a synonym. I will do this in my mind, then greet User and send the sentence with the synonym along with a request for User to replace the appropriate word in the sentence using testWord. I cannot send testWord in my message.
+  `,
+  expectedAnswerWithWordTemplate: `
+  I am in the middle of conversation with User but we started talking because User wanted to learn a new word: testWord and talk about it. If the conversation has just begun, I tell User that I will now provide a sentence in English that will include placeholder words for testWord, so that User can replace the words in the sentence with testWord. If I see in history messages that User has correctly replaced the sentence without testWord with a sentence containing testWord several times, I'll start a normal conversation, but try to use testWord as often as possible in my responses or ask a question that allows User to use it. At the same time, I remember to keep the conversation natural. Come up with a topic that allows for a normal conversation, but also subtly incorporates the word: testWord.
+  `,
+};

@@ -10,7 +10,8 @@
     "lint:check": "eslint .",
     "lint:fix": "eslint --fix .",
     "build": "node ./index.js",
-    "test": "vitest run"
+    "test": "vitest",
+    "test:build": "vitest run"
   },
   "dependencies": {
     "@langchain/openai": "^0.0.28",

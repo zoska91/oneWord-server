@@ -49,7 +49,7 @@ router.post('/subscribe', validate(subscribeSchema), async (req, res) => {
     const userId = user?._id;
 
     const hasSubscription = await SubscriptionModel.findOne({
-      endpoint: req.body.subscription,
+      endpoint: req.body.subscription.endpoint,
     });
 
     if (hasSubscription) {
@@ -73,7 +73,33 @@ router.post('/subscribe', validate(subscribeSchema), async (req, res) => {
   }
 });
 
-router.delete('/unsubscribe', async (req, res) => {
+router.delete('/unsubscribe-device', async (req, res) => {
+  const user = await getUser(req?.headers?.authorization);
+
+  if (user === 401 || !user) {
+    saveLog('error', 'GET', 'subscription/unsubscribe', 'no logged user', {
+      user,
+    });
+    res.status(401).json({ message: 'no logged user' });
+    return;
+  }
+
+  const userId = user?._id.toString();
+
+  try {
+    await SubscriptionModel.deleteOne({
+      userId,
+      endpoint: req.body.subscription.endpoint,
+    });
+
+    res.status(200).send('User unsubscribed successfully');
+  } catch (error) {
+    console.error('Failed to unsubscribe user:', error);
+    res.sendStatus(500);
+  }
+});
+
+router.delete('/unsubscribe-all', async (req, res) => {
   const user = await getUser(req?.headers?.authorization);
 
   if (user === 401 || !user) {

@@ -8,6 +8,7 @@ import { ILoggedUser } from '../../../models/user';
 import { getUserWithSettings } from '../../helpers/settings';
 import { lotOfDifferentWords } from '../../helpers/data';
 import { loginExtraUser } from '../../helpers/auth';
+import { ModelName, cleanAll } from '../../helpers/cleaner';
 
 type IShuffleWord = {
   id: string;
@@ -25,6 +26,11 @@ describe('GET /api/words/today-word Endpoint Tests', () => {
   const breakDayOfWeek = breakDay.getDay();
 
   beforeAll(async () => {
+    await cleanAll([
+      ModelName.UserModel,
+      ModelName.UserModel,
+      ModelName.SubscriptionModel,
+    ]);
     loggedInUser = await getUserWithSettings(app);
     loggedInExtraUser = await loginExtraUser(app);
     token = loggedInUser.token;

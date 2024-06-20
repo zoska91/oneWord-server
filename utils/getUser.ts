@@ -15,7 +15,7 @@ export const getUser = async (authorization?: string) => {
       saveLog('warn', 'GET', 'getUser', 'no token', authorization);
       return 401;
     }
-    console.log(config);
+
     if (!config.secret) {
       saveLog('info', 'GET', 'get user', 'user logged', { authorization });
       console.log('No database secret provided');

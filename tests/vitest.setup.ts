@@ -20,8 +20,7 @@ vi.mock('web-push', async (importOriginal) => {
         if (!subject || !publicKey || !privateKey) {
           throw new Error('Missing required parameters for setVapidDetails.');
         }
-        // @ts-ignore
-        actual.setVapidDetails(subject, publicKey, privateKey);
+        return true;
       }),
   };
 });

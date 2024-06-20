@@ -11,7 +11,7 @@ webpush.setVapidDetails(
   process.env.VAPID_PRIVATE_KEY || ''
 );
 
-const setNotification = async (userId: string) => {
+export const setNotification = async (userId: string) => {
   const notificationPayload = JSON.stringify({
     title: `It's time! Just one more word to learn!`,
     body: 'one small step...',
@@ -38,33 +38,34 @@ export const scheduleNotification = async (userId: string) => {
   const userSettings = await SettingsModel.findOne({ userId }).lean();
 
   if (!userSettings) return;
+
   const times = userSettings.notifications.map(
     (notification) => notification.time
   );
 
-  times.forEach(async (time) => {
-    const [hh, mm] = time.split(':');
-    const cronExpression = `${mm} ${hh} * * *`;
-    const cronId = `${userId}-${time}`;
+  try {
+    for (const time of times) {
+      const [hh, mm] = time.split(':');
+      const cronExpression = `${mm} ${hh} * * *`;
+      const cronId = `${userId}-${time}`;
 
-    cron.schedule(cronExpression, () => setNotification(userId), {
-      name: cronId,
-      scheduled: true,
-      timezone: 'Europe/Warsaw',
-    });
+      cron.schedule(cronExpression, () => setNotification(userId), {
+        name: cronId,
+        scheduled: true,
+        timezone: 'Europe/Warsaw',
+      });
 
-    const userCron = new CronModel({
-      cronId,
-      userId,
-      time,
-    });
+      const userCron = new CronModel({
+        cronId,
+        userId,
+        time,
+      });
 
-    try {
       await userCron.save();
-    } catch (error) {
-      console.error('Failed to save subscription:', error);
     }
-  });
+  } catch (error) {
+    console.error('Failed to save subscription:', error);
+  }
 };
 
 export const removeNotification = async (userId: string) => {

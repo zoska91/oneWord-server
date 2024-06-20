@@ -25,3 +25,31 @@ vi.mock('web-push', async (importOriginal) => {
       }),
   };
 });
+
+vi.mock('./ai', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    // @ts-ignore
+    ...actual,
+    getStandaloneQuestionForMemories: vi.fn().mockResolvedValue('mockQuestion'),
+    rerank: vi.fn(),
+  };
+});
+
+vi.mock('../chat/qdrant/searchMemories', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    // @ts-ignore
+    ...actual,
+    searchMemories: vi.fn(),
+  };
+});
+
+vi.mock('../chat/qdrant/setData', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    // @ts-ignore
+    ...actual,
+    saveMemory: vi.fn(),
+  };
+});

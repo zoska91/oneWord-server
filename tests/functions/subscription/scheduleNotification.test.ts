@@ -93,7 +93,6 @@ describe('scheduleNotification Function Tests', () => {
         task._scheduler.timeout &&
         name.includes(defaultNotification[0].time)
     );
-    console.log(cron.getTasks());
 
     expect(activeCronTasksAfter).toHaveLength(2);
     expect(isFirstNewNotification).toHaveLength(1);

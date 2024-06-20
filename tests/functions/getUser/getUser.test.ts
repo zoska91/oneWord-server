@@ -38,7 +38,6 @@ describe('getUser Function Tests', () => {
   it('should return the user if token verification succeeds', async () => {
     const result = await getUser(`Bearer ${user.token}`);
 
-    console.log(result);
     expect(result).toEqual(
       expect.objectContaining({
         username: 'testuser_regular',

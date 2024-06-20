@@ -1,6 +1,12 @@
 import mongoose, { Types } from 'mongoose';
 import { AvailableLanguages } from '../enums/languages';
 
+export const defaultNotification = [
+  { time: '12:42', type: '1' },
+  { time: '14:42', type: '2' },
+  { time: '16:42', type: '3' },
+];
+
 export interface INotification extends Document {
   time: string;
   type: string;
@@ -32,11 +38,7 @@ const SettingsSchema = new mongoose.Schema({
   isSummary: { type: Boolean, default: true },
   notifications: {
     type: [NotificationSchema],
-    default: [
-      { time: '12:42', type: '1' },
-      { time: '14:42', type: '2' },
-      { time: '16:42', type: '3' },
-    ],
+    default: defaultNotification,
   },
   languageToLearn: { type: Number, default: AvailableLanguages.en },
   baseLanguage: { type: Number, default: AvailableLanguages.pl },

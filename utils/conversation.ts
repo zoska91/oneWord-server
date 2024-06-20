@@ -178,5 +178,5 @@ export const saveSummary = async (
     userId,
   });
 
-  newMessage.save();
+  await newMessage.save();
 };

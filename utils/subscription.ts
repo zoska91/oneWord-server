@@ -33,6 +33,7 @@ export const setNotification = async (userId: string) => {
 };
 
 export const scheduleNotification = async (userId: string) => {
+  console.log(9, userId);
   await removeNotification(userId);
 
   const userSettings = await SettingsModel.findOne({ userId }).lean();
@@ -42,7 +43,7 @@ export const scheduleNotification = async (userId: string) => {
   const times = userSettings.notifications.map(
     (notification) => notification.time
   );
-
+  console.log(8, times);
   try {
     for (const time of times) {
       const [hh, mm] = time.split(':');
@@ -69,10 +70,9 @@ export const scheduleNotification = async (userId: string) => {
 };
 
 export const removeNotification = async (userId: string) => {
-  await CronModel.find({ userId });
-
-  Array.from(cron.getTasks()).filter(([name, task]) => {
+  Array.from(cron.getTasks()).filter(async ([name, task]) => {
     if (!name.includes(userId)) return;
+    console.log(userId);
     task.stop();
   });
 

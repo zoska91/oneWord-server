@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import request from 'supertest';
 
 import app from '../../testsApp';
@@ -25,7 +25,7 @@ describe.only('DELETE /api/subscription/unsubscribe-device Endpoint Tests', asyn
     const res = await request(app)
       .delete('/api/subscription/unsubscribe-device')
       .set('Authorization', `Bearer ${user.token}`)
-      .send({ subscription: mockSubscriptionData(user.id).subscription });
+      .send({ endpoint: mockSubscriptionData(user.id).subscription.endpoint });
 
     expect(res.statusCode).toEqual(200);
     expect(res.text).toBe('User unsubscribed successfully');
@@ -67,7 +67,7 @@ describe.only('DELETE /api/subscription/unsubscribe-device Endpoint Tests', asyn
     const res = await request(app)
       .delete('/api/subscription/unsubscribe-device')
       .set('Authorization', `Bearer ${user.token}`)
-      .send({ subscription: mockSubscriptionData(user.id).subscription });
+      .send({ endpoint: mockSubscriptionData(user.id).subscription.endpoint });
 
     expect(res.statusCode).toEqual(200);
     expect(res.text).toBe('User unsubscribed successfully');

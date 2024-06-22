@@ -89,7 +89,7 @@ router.delete('/unsubscribe-device', async (req, res) => {
   try {
     await SubscriptionModel.deleteOne({
       userId,
-      endpoint: req.body.subscription.endpoint,
+      endpoint: req.body.endpoint,
     });
 
     res.status(200).send('User unsubscribed successfully');

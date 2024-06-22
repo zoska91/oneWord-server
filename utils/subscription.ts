@@ -18,15 +18,23 @@ export const setNotification = async (userId: string) => {
   });
 
   try {
-    const subscriptions = await SubscriptionModel.find({
-      userId,
-    });
+    const subscriptions = await SubscriptionModel.find({ userId });
 
-    const promises = subscriptions.map((sub) => {
-      webpush.sendNotification(sub.toJSON(), notificationPayload);
-    });
+    if (!subscriptions || subscriptions.length === 0) return;
 
-    await Promise.all(promises);
+    const promises = subscriptions.map((sub) =>
+      webpush
+        .sendNotification(sub.toJSON(), notificationPayload)
+        .then((response) =>
+          console.log('Notification sent successfully:', response)
+        )
+        .catch((error) => {
+          console.error('Error sending notification:', error);
+          return null; // Return null to filter out failed promises
+        })
+    );
+
+    await Promise.all(promises.filter((promise) => promise !== null));
   } catch (error) {
     console.error('Error sending notification, reason: ', error);
   }

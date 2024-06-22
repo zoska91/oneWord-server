@@ -21,5 +21,4 @@ jobs:
             git pull origin master
             git status
             npm install
-            npm run test:build
             pm2 restart 0

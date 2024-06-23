@@ -53,7 +53,9 @@ describe('GET /api/words/learned-words Endpoint Tests', () => {
   });
 
   it('should return 401 if no user is logged in', async () => {
-    const res = await request(app).get('/api/words/learned-words');
+    const res = await request(app)
+      .get('/api/words/learned-words')
+      .query({ limit: 2 });
 
     expect(res.statusCode).toEqual(401);
     expect(res.body).toHaveProperty('message', 'no logged user');
@@ -96,5 +98,32 @@ describe('GET /api/words/learned-words Endpoint Tests', () => {
       'message',
       'query.days must be a `number` type, but the final value was: `NaN` (cast from the value `"invalid"`).'
     );
+  });
+
+  it('should fetch learned words with only limit parameter provided', async () => {
+    const res = await request(app)
+      .get('/api/words/learned-words')
+      .set('Authorization', `Bearer ${token}`)
+      .query({ limit: 3 });
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body.words).toBeDefined();
+    expect(res.body.words).toBeInstanceOf(Array);
+    expect(res.body.words.length).toEqual(3);
+    expect(res.body.words[0].basicWord).toEqual('dom');
+    expect(res.body.words[0].transWord).toEqual('house');
+    expect(res.body.words[0].userId).toEqual(user.id.toString());
+    expect(res.body.words[0].status).toEqual(2);
+  });
+
+  it('should return 400 if limit is missing and days is provided', async () => {
+    const res = await request(app)
+      .get('/api/words/learned-words')
+      .set('Authorization', `Bearer ${token}`)
+      .query({ days: 2 });
+
+    expect(res.statusCode).toEqual(500);
+    expect(res.body).toHaveProperty('message');
+    expect(res.body.message).toContain('query.limit is a required field');
   });
 });

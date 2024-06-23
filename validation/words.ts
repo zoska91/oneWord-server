@@ -30,7 +30,7 @@ export const deleteWordSchema = yup.object({
 
 export const getLearnedWordsSchema = yup.object({
   query: yup.object({
-    limit: yup.number(),
+    limit: yup.number().required(),
     days: yup.number(),
   }),
 });

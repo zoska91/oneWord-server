@@ -7,6 +7,8 @@ import cors from 'cors';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import fileupload from 'express-fileupload';
+import swaggerUi from 'swagger-ui-express';
+import specs from './swaggerConfig';
 
 import config from './config';
 
@@ -39,6 +41,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 app.use(
   cors({
     origin: '*',

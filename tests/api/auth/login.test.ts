@@ -6,7 +6,6 @@ import { UserModel } from '../../../models/user';
 
 import app from '../../testsApp';
 describe('POST /api/auth/login', () => {
-  
   it('should log in an existing user with correct credentials', async () => {
     // Create a test user
     const hashedPassword = await bcrypt.hash('testpassword', 10);
@@ -63,7 +62,7 @@ describe('POST /api/auth/login', () => {
     );
   });
 
-  it('should return 500 if username validation fails', async () => {
+  it('should return 400 if username validation fails', async () => {
     const longUsername = 'a'.repeat(33);
 
     const res = await request(app).post('/api/auth/login').send({
@@ -71,14 +70,14 @@ describe('POST /api/auth/login', () => {
       password: 'testpassword',
     });
 
-    expect(res.statusCode).toEqual(500);
+    expect(res.statusCode).toEqual(400);
     expect(res.body).toHaveProperty(
       'message',
       'body.username must be at most 32 characters'
     );
   });
 
-  it('should return 500 if password validation fails', async () => {
+  it('should return 400 if password validation fails', async () => {
     const longPassword = 'a'.repeat(65);
 
     const res = await request(app).post('/api/auth/login').send({
@@ -86,31 +85,31 @@ describe('POST /api/auth/login', () => {
       password: longPassword,
     });
 
-    expect(res.statusCode).toEqual(500);
+    expect(res.statusCode).toEqual(400);
     expect(res.body).toHaveProperty(
       'message',
       'body.password must be at most 64 characters'
     );
   });
 
-  it('should return 500 if username is missing', async () => {
+  it('should return 400 if username is missing', async () => {
     const res = await request(app).post('/api/auth/login').send({
       password: 'testpassword',
     });
 
-    expect(res.statusCode).toEqual(500);
+    expect(res.statusCode).toEqual(400);
     expect(res.body).toHaveProperty(
       'message',
       'body.username is a required field'
     );
   });
 
-  it('should return 500 if password is missing', async () => {
+  it('should return 400 if password is missing', async () => {
     const res = await request(app).post('/api/auth/login').send({
       username: 'testuser',
     });
 
-    expect(res.statusCode).toEqual(500);
+    expect(res.statusCode).toEqual(400);
     expect(res.body).toHaveProperty(
       'message',
       'body.password is a required field'

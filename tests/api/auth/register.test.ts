@@ -48,7 +48,7 @@ describe('POST /api/auth/register', () => {
       password: 'testpassword',
     });
 
-    expect(res.statusCode).toEqual(500);
+    expect(res.statusCode).toEqual(400);
     expect(res.body).toHaveProperty(
       'message',
       'body.username must be at most 32 characters'
@@ -63,7 +63,7 @@ describe('POST /api/auth/register', () => {
       password: longPassword,
     });
 
-    expect(res.statusCode).toEqual(500);
+    expect(res.statusCode).toEqual(400);
     expect(res.body).toHaveProperty(
       'message',
       'body.password must be at most 64 characters'
@@ -75,7 +75,7 @@ describe('POST /api/auth/register', () => {
       password: 'testpassword',
     });
 
-    expect(res.statusCode).toEqual(500);
+    expect(res.statusCode).toEqual(400);
     expect(res.body).toHaveProperty(
       'message',
       'body.username is a required field'
@@ -87,7 +87,7 @@ describe('POST /api/auth/register', () => {
       username: 'testuser',
     });
 
-    expect(res.statusCode).toEqual(500);
+    expect(res.statusCode).toEqual(400);
     expect(res.body).toHaveProperty(
       'message',
       'body.password is a required field'

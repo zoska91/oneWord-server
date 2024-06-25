@@ -67,7 +67,7 @@ describe('GET /api/words/learned-words Endpoint Tests', () => {
       .set('Authorization', `Bearer ${token}`)
       .query({ limit: 'invalid', days: 'invalid' });
 
-    expect(res.statusCode).toEqual(500);
+    expect(res.statusCode).toEqual(400);
     expect(res.body).toHaveProperty('message');
     expect(res.body.message).toContain(
       'query.days must be a `number` type, but the final value was: `NaN` (cast from the value `"invalid"`).'
@@ -80,7 +80,7 @@ describe('GET /api/words/learned-words Endpoint Tests', () => {
       .set('Authorization', `Bearer ${token}`)
       .query({ limit: 'invalid', days: 3 });
 
-    expect(res.statusCode).toEqual(500);
+    expect(res.statusCode).toEqual(400);
     expect(res.body).toHaveProperty(
       'message',
       'query.limit must be a `number` type, but the final value was: `NaN` (cast from the value `"invalid"`).'
@@ -93,7 +93,7 @@ describe('GET /api/words/learned-words Endpoint Tests', () => {
       .set('Authorization', `Bearer ${token}`)
       .query({ limit: 10, days: 'invalid' });
 
-    expect(res.statusCode).toEqual(500);
+    expect(res.statusCode).toEqual(400);
     expect(res.body).toHaveProperty(
       'message',
       'query.days must be a `number` type, but the final value was: `NaN` (cast from the value `"invalid"`).'
@@ -122,7 +122,7 @@ describe('GET /api/words/learned-words Endpoint Tests', () => {
       .set('Authorization', `Bearer ${token}`)
       .query({ days: 2 });
 
-    expect(res.statusCode).toEqual(500);
+    expect(res.statusCode).toEqual(400);
     expect(res.body).toHaveProperty('message');
     expect(res.body.message).toContain('query.limit is a required field');
   });

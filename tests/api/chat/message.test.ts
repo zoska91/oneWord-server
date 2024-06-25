@@ -26,7 +26,7 @@ describe('POST /api/chat/message', () => {
     expect(res.body).toHaveProperty('message', 'no logged user');
   });
 
-  it('should return 500 if languageToLearn is missing', async () => {
+  it('should return 400 if languageToLearn is missing', async () => {
     const user = await loginUserWithAi(app);
 
     const res = await request(app)
@@ -38,14 +38,14 @@ describe('POST /api/chat/message', () => {
         todayWord: 'Hola',
       });
 
-    expect(res.statusCode).toEqual(500);
+    expect(res.statusCode).toEqual(400);
     expect(res.body).toHaveProperty(
       'message',
       'body.languageToLearn is a required field'
     );
   });
 
-  it('should return 500 if languageToLearn exceeds maximum length', async () => {
+  it('should return 400 if languageToLearn exceeds maximum length', async () => {
     const longLanguage = 'a'.repeat(MAX_LENGTH_LANGUAGE_TO_LEARN + 1);
     const user = await loginUserWithAi(app);
 
@@ -59,14 +59,14 @@ describe('POST /api/chat/message', () => {
         todayWord: 'Hola',
       });
 
-    expect(res.statusCode).toEqual(500);
+    expect(res.statusCode).toEqual(400);
     expect(res.body).toHaveProperty(
       'message',
       `body.languageToLearn must be at most ${MAX_LENGTH_LANGUAGE_TO_LEARN} characters`
     );
   });
 
-  it('should return 500 if query exceeds maximum length', async () => {
+  it('should return 400 if query exceeds maximum length', async () => {
     const longQuery = 'a'.repeat(1025);
 
     const user = await loginUserWithAi(app);
@@ -81,7 +81,7 @@ describe('POST /api/chat/message', () => {
         todayWord: 'Hola',
       });
 
-    expect(res.statusCode).toEqual(500);
+    expect(res.statusCode).toEqual(400);
     expect(res.body).toHaveProperty(
       'message',
       'body.query must be at most 1024 characters'

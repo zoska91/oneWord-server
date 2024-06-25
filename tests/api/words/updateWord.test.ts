@@ -62,14 +62,14 @@ describe('PUT /api/words/update-one/:id Endpoint Tests', async () => {
     expect(res.body).toHaveProperty('message', 'word not found');
   });
 
-  it('should return 500 if basicWord is missing', async () => {
+  it('should return 400 if basicWord is missing', async () => {
     const wordToUpdate = words[0];
     const res = await request(app)
       .put(`/api/words/update-one/${wordToUpdate._id}`)
       .set('Authorization', `Bearer ${user.token}`)
       .send({ transWord: 'updatedTrans', addLang: 1 });
 
-    expect(res.statusCode).toEqual(500);
+    expect(res.statusCode).toEqual(400);
     expect(res.body).toHaveProperty(
       'message',
       'body.basicWord is a required field'
@@ -94,35 +94,35 @@ describe('PUT /api/words/update-one/:id Endpoint Tests', async () => {
     expect(res.body).toHaveProperty('message', 'word not found');
   });
 
-  it('should return 500 if transWord is missing', async () => {
+  it('should return 400 if transWord is missing', async () => {
     const wordToUpdate = words[0];
     const res = await request(app)
       .put(`/api/words/update-one/${wordToUpdate._id}`)
       .set('Authorization', `Bearer ${user.token}`)
       .send({ basicWord: 'updatedWord', addLang: 1 });
 
-    expect(res.statusCode).toEqual(500);
+    expect(res.statusCode).toEqual(400);
     expect(res.body).toHaveProperty(
       'message',
       'body.transWord is a required field'
     );
   });
 
-  it('should return 500 if addLang is missing', async () => {
+  it('should return 400 if addLang is missing', async () => {
     const wordToUpdate = words[0];
     const res = await request(app)
       .put(`/api/words/update-one/${wordToUpdate._id}`)
       .set('Authorization', `Bearer ${user.token}`)
       .send({ basicWord: 'updatedWord', transWord: 'updatedTrans' });
 
-    expect(res.statusCode).toEqual(500);
+    expect(res.statusCode).toEqual(400);
     expect(res.body).toHaveProperty(
       'message',
       'body.addLang is a required field'
     );
   });
 
-  it('should return 500 if basicWord exceeds max length', async () => {
+  it('should return 400 if basicWord exceeds max length', async () => {
     const wordToUpdate = words[0];
     const longWord = 'a'.repeat(MAX_LENGTH_TODAY_WORD + 1);
     const res = await request(app)
@@ -130,14 +130,14 @@ describe('PUT /api/words/update-one/:id Endpoint Tests', async () => {
       .set('Authorization', `Bearer ${user.token}`)
       .send({ basicWord: longWord, transWord: 'updatedTrans', addLang: 1 });
 
-    expect(res.statusCode).toEqual(500);
+    expect(res.statusCode).toEqual(400);
     expect(res.body).toHaveProperty(
       'message',
       `body.basicWord must be at most ${MAX_LENGTH_TODAY_WORD} characters`
     );
   });
 
-  it('should return 500 if transWord exceeds max length', async () => {
+  it('should return 400 if transWord exceeds max length', async () => {
     const wordToUpdate = words[0];
     const longWord = 'a'.repeat(MAX_LENGTH_TODAY_WORD + 1);
     const res = await request(app)
@@ -145,7 +145,7 @@ describe('PUT /api/words/update-one/:id Endpoint Tests', async () => {
       .set('Authorization', `Bearer ${user.token}`)
       .send({ basicWord: 'updatedWord', transWord: longWord, addLang: 1 });
 
-    expect(res.statusCode).toEqual(500);
+    expect(res.statusCode).toEqual(400);
     expect(res.body).toHaveProperty(
       'message',
       `body.transWord must be at most ${MAX_LENGTH_TODAY_WORD} characters`

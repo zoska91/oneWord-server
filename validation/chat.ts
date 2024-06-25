@@ -7,7 +7,7 @@ export const messageSchema = yup.object({
     languageToLearn: yup.string().max(MAX_LENGTH_LANGUAGE_TO_LEARN).required(),
     isStreaming: yup.bool(),
     todayWord: yup.string().max(MAX_LENGTH_TODAY_WORD),
-    currentConversationId: yup.string(),
+    currentConversationId: yup.string().nullable(),
   }),
 });
 

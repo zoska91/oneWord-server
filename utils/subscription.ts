@@ -15,6 +15,9 @@ export const setNotification = async (userId: string) => {
   const notificationPayload = JSON.stringify({
     title: `It's time! Just one more word to learn!`,
     body: 'one small step...',
+    data: {
+      url: 'https://oneword.byst.re', // URL Twojej aplikacji PWA
+    },
   });
 
   try {

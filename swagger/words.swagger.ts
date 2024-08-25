@@ -2,59 +2,47 @@
  * @swagger
  * tags:
  *   - name: Words
- *     description: Endpoints for managing user words
+ *     description: Endpoints for managing user words and results
  */
 
 /**
  * @swagger
  * components:
  *   schemas:
- *     Word:
+ *     Result:
  *       type: object
  *       properties:
  *         _id:
  *           type: string
  *         userId:
  *           type: string
- *         basicWord:
- *           type: string
- *         transWord:
- *           type: string
- *         addLang:
- *           type: number
- *         status:
- *           type: number
- *           description: Status of the word.
- *           enum: [0, 1, 2]
  *         createdDate:
  *           type: string
  *           format: date-time
- *         updatedDate:
- *           type: string
- *           format: date-time
+ *         correctAnswers:
+ *           type: number
+ *         badAnswers:
+ *           type: number
  *       required:
- *         - basicWord
- *         - transWord
- *         - addLang
+ *         - userId
+ *         - createdDate
+ *         - correctAnswers
+ *         - badAnswers
  */
 
 /**
  * @swagger
  * components:
  *   schemas:
- *     AddWordInput:
+ *     AddResultsInput:
  *       type: object
  *       properties:
  *         body:
  *           type: object
  *           properties:
- *             basicWord:
- *               type: string
- *             transWord:
- *               type: string
- *             addLang:
+ *             correctAnswers:
  *               type: number
- *             status:
+ *             badAnswers:
  *               type: number
  *       required:
  *         - body
@@ -64,28 +52,17 @@
  * @swagger
  * components:
  *   schemas:
- *     PutWordInput:
+ *     GetResultsInput:
  *       type: object
  *       properties:
- *         body:
+ *         query:
  *           type: object
  *           properties:
- *             basicWord:
+ *             date:
  *               type: string
- *             transWord:
- *               type: string
- *             addLang:
- *               type: number
- *             status:
- *               type: number
- *         params:
- *           type: object
- *           properties:
- *             id:
- *               type: string
+ *               format: date
  *       required:
- *         - body
- *         - params
+ *         - query
  */
 
 /**
@@ -311,6 +288,61 @@
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Word'
+ *       401:
+ *         description: Unauthorized - no logged-in user or authentication.
+ *       500:
+ *         description: Server error.
+ */
+
+/**
+ * @swagger
+ * /words/add-results:
+ *   post:
+ *     summary: Add results
+ *     tags:
+ *       - Words
+ *     description: Adds results for the logged-in user.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AddResultsInput'
+ *     responses:
+ *       200:
+ *         description: Successful operation - results added.
+ *       401:
+ *         description: Unauthorized - no logged-in user or authentication.
+ *       500:
+ *         description: Server error.
+ */
+
+/**
+ * @swagger
+ * /words/get-results:
+ *   get:
+ *     summary: Get results
+ *     tags:
+ *       - Words
+ *     description: Retrieves results for the logged-in user, with optional date filter.
+ *     parameters:
+ *       - in: query
+ *         name: date
+ *         schema:
+ *           type: string
+ *           format: date
+ *     responses:
+ *       200:
+ *         description: Successful operation - results retrieved.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 results:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Result'
  *       401:
  *         description: Unauthorized - no logged-in user or authentication.
  *       500:

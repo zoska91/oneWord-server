@@ -15,11 +15,14 @@ import { saveLog } from '../logger';
 import { getUser } from '../utils/getUser';
 import { validate } from '../validation';
 import {
+  addResultsSchema,
   addWordSchema,
   deleteWordSchema,
   getLearnedWordsSchema,
+  getResultsSchema,
   putWordSchema,
 } from '../validation/words';
+import { ResultModel } from '../models/result';
 
 type FiltersType = {
   userId: string;
@@ -320,5 +323,67 @@ router.get(
     }
   }
 );
+
+router.post('/add-results', validate(addResultsSchema), async (req, res) => {
+  try {
+    const user = await getUser(req?.headers?.authorization);
+
+    if (user === 401 || !user) {
+      saveLog('error', 'POST', 'words/add-one', 'no logged user', { user });
+      res.status(401).json({ message: 'no logged user' });
+      return;
+    }
+    const userId = user?._id;
+
+    const newResults = new ResultModel({
+      userId,
+      ...req.body,
+    });
+    newResults.save();
+
+    saveLog('info', 'POST', 'words/add-results', 'add success', {
+      userId,
+    });
+    res.json({ message: 'Success' });
+  } catch (e) {
+    console.log(e);
+    saveLog('info', 'POST', 'words/add-one', 'system error', { error: e });
+    res.status(500).json({ message: 'something went wrong' });
+  }
+});
+
+router.get('/get-results', validate(getResultsSchema), async (req, res) => {
+  try {
+    const user = await getUser(req?.headers?.authorization);
+
+    if (user === 401 || !user) {
+      saveLog('error', 'POST', 'words/add-one', 'no logged user', { user });
+      res.status(401).json({ message: 'no logged user' });
+      return;
+    }
+    const userId = user?._id;
+    const filters: { createdDate?: { $gte: number } } = {};
+    const date = req.query.date;
+
+    if (typeof date === 'string') {
+      const formattedDate = new Date(date).setHours(0, 0, 0, 0);
+      filters.createdDate = { $gte: formattedDate };
+    }
+
+    const results = await ResultModel.find({
+      userId,
+      ...filters,
+    });
+
+    saveLog('info', 'POST', 'words/add-results', 'add success', {
+      userId,
+    });
+    res.json({ results });
+  } catch (e) {
+    console.log(e);
+    saveLog('info', 'POST', 'words/add-one', 'system error', { error: e });
+    res.status(500).json({ message: 'something went wrong' });
+  }
+});
 
 export default router;

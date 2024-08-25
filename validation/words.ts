@@ -34,3 +34,16 @@ export const getLearnedWordsSchema = yup.object({
     days: yup.number(),
   }),
 });
+
+export const addResultsSchema = yup.object({
+  body: yup.object({
+    correctAnswers: yup.number().required(),
+    badAnswers: yup.number().required(),
+  }),
+});
+
+export const getResultsSchema = yup.object({
+  query: yup.object({
+    date: yup.string(),
+  }),
+});

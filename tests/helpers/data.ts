@@ -281,3 +281,109 @@ export const prompts = {
   I am in the middle of conversation with User but we started talking because User wanted to learn a new word: testWord and talk about it. If the conversation has just begun, I tell User that I will now provide a sentence in English that will include placeholder words for testWord, so that User can replace the words in the sentence with testWord. If I see in history messages that User has correctly replaced the sentence without testWord with a sentence containing testWord several times, I'll start a normal conversation, but try to use testWord as often as possible in my responses or ask a question that allows User to use it. At the same time, I remember to keep the conversation natural. Come up with a topic that allows for a normal conversation, but also subtly incorporates the word: testWord.
   `,
 };
+
+export const resultsToAdd = [
+  {
+    createdDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+    correctAnswers: 95,
+    badAnswers: 5,
+  },
+  {
+    createdDate: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000),
+    correctAnswers: 80,
+    badAnswers: 10,
+  },
+  {
+    createdDate: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
+    correctAnswers: 70,
+    badAnswers: 15,
+  },
+  {
+    createdDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
+    correctAnswers: 85,
+    badAnswers: 5,
+  },
+  {
+    createdDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
+    correctAnswers: 60,
+    badAnswers: 20,
+  },
+  {
+    createdDate: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000),
+    correctAnswers: 78,
+    badAnswers: 12,
+  },
+  {
+    createdDate: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000),
+    correctAnswers: 85,
+    badAnswers: 5,
+  },
+  {
+    createdDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+    correctAnswers: 92,
+    badAnswers: 8,
+  },
+  {
+    createdDate: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
+    correctAnswers: 70,
+    badAnswers: 15,
+  },
+  {
+    createdDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+    correctAnswers: 88,
+    badAnswers: 12,
+  },
+];
+
+export const extraResultsToAdd = [
+  {
+    createdDate: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
+    correctAnswers: 82,
+    badAnswers: 10,
+  },
+  {
+    createdDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+    correctAnswers: 90,
+    badAnswers: 8,
+  },
+  {
+    createdDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+    correctAnswers: 76,
+    badAnswers: 12,
+  },
+  {
+    createdDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+    correctAnswers: 85,
+    badAnswers: 5,
+  },
+  {
+    createdDate: new Date(),
+    correctAnswers: 92,
+    badAnswers: 8,
+  },
+  {
+    createdDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+    correctAnswers: 87,
+    badAnswers: 6,
+  },
+  {
+    createdDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+    correctAnswers: 75,
+    badAnswers: 9,
+  },
+  {
+    createdDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+    correctAnswers: 80,
+    badAnswers: 7,
+  },
+  {
+    createdDate: new Date(),
+    correctAnswers: 95,
+    badAnswers: 3,
+  },
+  {
+    createdDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+    correctAnswers: 88,
+    badAnswers: 5,
+  },
+];

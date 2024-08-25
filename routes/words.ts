@@ -362,8 +362,6 @@ router.get('/get-results', validate(getResultsSchema), async (req, res) => {
       return;
     }
     const userId = user?._id;
-    console.log(userId);
-    console.log(req.query);
     const filters: { createdDate?: { $gte: number } } = {};
     const date = req.query.date;
 
@@ -371,7 +369,6 @@ router.get('/get-results', validate(getResultsSchema), async (req, res) => {
       const formattedDate = new Date(date).setHours(0, 0, 0, 0);
       filters.createdDate = { $gte: formattedDate };
     }
-    console.log({ filters });
 
     const results = await ResultModel.find({
       userId,

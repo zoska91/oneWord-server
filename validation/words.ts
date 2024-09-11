@@ -12,9 +12,9 @@ export const addWordSchema = yup.object({
 
 export const putWordSchema = yup.object({
   body: yup.object({
-    basicWord: yup.string().max(MAX_LENGTH_TODAY_WORD).required(),
-    transWord: yup.string().max(MAX_LENGTH_TODAY_WORD).required(),
-    addLang: yup.number().required(),
+    basicWord: yup.string().max(MAX_LENGTH_TODAY_WORD),
+    transWord: yup.string().max(MAX_LENGTH_TODAY_WORD),
+    addLang: yup.number(),
     status: yup.number(),
   }),
   params: yup.object({
